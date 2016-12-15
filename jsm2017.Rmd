@@ -1,6 +1,6 @@
 ---
-title: 'Expanding ggplot2 for better visual exploration of missing data'
-author: "Nicholas Tierney & Dianne Cook, Monash University"
+title: "Expanding ggplot2 for better visual exploration of missing data"
+author: "Nicholas Tierney & Dianne Cook"
 output:
   pdf_document:
     keep_tex: yes

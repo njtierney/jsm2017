@@ -25,7 +25,7 @@
 \usepackage{hyperref}
 \hypersetup{unicode=true,
             pdftitle={Expanding ggplot2 for better visual exploration of missing data},
-            pdfauthor={Nicholas Tierney* \& Dianne Cook\# * = Queensland University of Technology \# = Monash University},
+            pdfauthor={Nicholas Tierney \& Dianne Cook},
             pdfborder={0 0 0},
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
@@ -116,8 +116,7 @@
   \title{Expanding ggplot2 for better visual exploration of missing data}
   \pretitle{\vspace{\droptitle}\centering\huge}
   \posttitle{\par}
-  \author{Nicholas Tierney* \& Dianne Cook\# * = Queensland University of
-Technology \# = Monash University}
+  \author{Nicholas Tierney \& Dianne Cook}
   \preauthor{\centering\large\emph}
   \postauthor{\par}
   \date{}
@@ -175,8 +174,10 @@ visualisation. Packages such as mice, Hmisc, mi, norm, and Amelia
 provide functions to facilitate imputation, and use a wide range of
 methods, from mean or median imputation, to regression or machine
 learning, to Bayesian methodologies, as well as providing diagnostics on
-the imputations themselves ({\textbf{???}}; {\textbf{???}};
-{\textbf{???}}; {\textbf{???}}; {\textbf{???}}).
+the imputations themselves (Buuren and Groothuis-Oudshoorn 2011; Harrell
+Jr, Charles Dupont, and others. 2016; Su et al. 2011; R by Alvaro A.
+Novo. Original by Joseph L. Schafer
+\textless{}jls@stat.psu.edu\textgreater{}. 2013; {\textbf{???}}).
 
 Missing data visualisation packages include the R package VIM, and the
 stand alone softwares MANET, ggobi, and MissingDataGUI (Cheng et al.
@@ -439,6 +440,8 @@ calculated with \texttt{table\_missing\_case} and
 
 \section{Discussion}\label{discussion}
 
+In this paper we discussed
+
 We describe the current packages and software for exploring and
 visualising missing data.
 
@@ -496,16 +499,32 @@ structures.
 \addcontentsline{toc}{section}{References}
 
 \hypertarget{refs}{}
+\hypertarget{ref-mice}{}
+Buuren, Stef van, and Karin Groothuis-Oudshoorn. 2011. ``Mice:
+Multivariate Imputation by Chained Equations in R.'' \emph{J. Stat.
+Softw.} 45 (1): 1--67.
+
 \hypertarget{ref-cheng2015}{}
 Cheng, Xiaoyue, Dianne Cook, Heike Hofmann, and others. 2015. ``Visually
 Exploring Missing Values in Multivariable Data Using a Graphical User
 Interface.'' \emph{Journal of Statistical Software} 68 (1). Foundation
 for Open Access Statistics: 1--23.
 
+\hypertarget{ref-Hmisc}{}
+Harrell Jr, Frank E, with contributions from Charles Dupont, and many
+others. 2016. \emph{Hmisc: Harrell Miscellaneous}.
+\url{https://CRAN.R-project.org/package=Hmisc}.
+
 \hypertarget{ref-Little1988}{}
 Little, Roderick JA. 1988. ``A Test of Missing Completely at Random for
 Multivariate Data with Missing Values.'' \emph{Journal of the American
 Statistical Association} 83 (404). Taylor \& Francis: 1198--1202.
+
+\hypertarget{ref-norm}{}
+R by Alvaro A. Novo. Original by Joseph L. Schafer
+\textless{}jls@stat.psu.edu\textgreater{}., Ported to. 2013. \emph{Norm:
+Analysis of Multivariate Normal Datasets with Missing Values}.
+\url{https://CRAN.R-project.org/package=norm}.
 
 \hypertarget{ref-Rubin1976}{}
 Rubin, Donald B. 1976. ``Inference and Missing Data.'' \emph{Biometrika}
@@ -521,6 +540,11 @@ Simon, Gary A., and Jeffrey S Simonoff. 1986. ``Diagnostic Plots for
 Missing Data in Least Squares Regression.'' \emph{Journal of the
 American Statistical Association} 81 (394). Taylor \& Francis Group:
 501--9.
+
+\hypertarget{ref-mi}{}
+Su, Yu-Sung, Andrew Gelman, Jennifer Hill, and Masanao Yajima. 2011.
+``Multiple Imputation with Diagnostics (Mi) in R: Opening Windows into
+the Black Box.'' \emph{J. Stat. Softw.} 45 (1): 1--31.
 
 \hypertarget{ref-Swayne1998}{}
 Swayne, Deborah F, and Andreas Buja. 1998. ``Missing Data in Interactive
