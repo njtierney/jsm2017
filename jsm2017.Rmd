@@ -1,5 +1,5 @@
 ---
-title: 'naniar: Expanding ggplot2 to better visual exploration missingsness'
+title: 'naniar: Expanding ggplot2 for better visual exploration missingsness'
 author: "Nicholas Tierney"
 date: "14/12/2016"
 output:
