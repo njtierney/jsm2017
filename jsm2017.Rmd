@@ -7,6 +7,7 @@ output:
     keep_md: yes
   pdf_document:
     keep_tex: yes
+bibliography: jsm2017.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -102,7 +103,7 @@ prop_na <- function(x){
 
 Missing data is ubiquitous in data analysis, and are often the source of much energy, frustration, and confusion. Existing approaches to exploring missing data structure either provide stand alone software, or build their own workflow. ggplot2, an implementation of the grammar of graphics for data visualisation is an incredibly popular way to produce exploratory and publication quality graphics, but it does not yet currently missing data. Tidy data, another philosophy of Wickham makes it easy and consistent to engage in data manipulation and wrangling. This paper describes approaches for exploring missing data structure with minimal deviation from the common workflows of ggplot and tidy data structures.
 
-Since 2014 there has been substantial development in the area of "tidy data" [ @wickham], which states the (surprisingly simple!) rule that each row is an observation and each column is a variable, which makes it easy to reason with data. This paper describes approaches for summarising missing data in numerical and graphical forms whilst maintaining a tidy format.
+Since 2014 there has been substantial development in the area of "tidy data" [@Wickham2014], which states the (surprisingly simple!) rule that each row is an observation and each column is a variable, which makes it easy to reason with data. This paper describes approaches for summarising missing data in numerical and graphical forms whilst maintaining a tidy format.
 
 # Types of missing data
 
@@ -110,9 +111,9 @@ Canonical sources of missing data are questionnaires. Data obtained from questio
 
 Another common source of known and unknown structured missingness is medical examination data. Here the results of particular medical tests may be: missing for purely random reasons, missing due to the procedure, or missing based on decisions arising from the observed data. As an example, a young patient may not be subjected to neurodegenerative tests reserved for older workers. Longitudinal studies are also sources of missing data, where participants may not return for future testing sessions. In these cases it is difficult, sometimes impossible, to ascertain the reason for the dropouts, and hence, whether the missingness structure is known or unknown.
 
-Imputation is the process of replacing the missing values with more likely values. However in order for estimates to be unbiased, it is essential to understand the missingness structure and mechanisms  [@Simon1986; @Little1988; @Rubin1976].
+Imputation is the process of replacing the missing values with more likely values. However in order for estimates to be unbiased, it is essential to understand the missingness structure and mechanisms [@Little1988; @Rubin1976; @simon-simonoff].
 
-Other categories of missing data are sometimes identified: Missing Completeley at Random (MCAR), Missing At Random (MAR), and Missing Not At Random (MNAR) [ @Little2002]. MCAR describes where missingness has no association with the observed or unobserved data. MAR describes cases where missingness depends on data observed, but not data unobserved. MNAR is where the missingness of the response is related to an unobserved value relevant to the assessment of interest.
+Other categories of missing data are sometimes identified: Missing Completeley at Random (MCAR), Missing At Random (MAR), and Missing Not At Random (MNAR) [@Little1988]. MCAR describes where missingness has no association with the observed or unobserved data. MAR describes cases where missingness depends on data observed, but not data unobserved. MNAR is where the missingness of the response is related to an unobserved value relevant to the assessment of interest.
 
 XXX How have you met missings before? What examples of data were you working with that had missing value problems?
 
@@ -120,7 +121,7 @@ XXX How have you met missings before? What examples of data were you working wit
 
 XXX Describe exisiting packages, and group them into what they do
 
-Software focussing on missing data typically focus on imputation or visualisation. Packages such as mice, Hmisc, mi, Amelia, and mitools provide functions to facilitate imputation, and use a wide range of methods, from the simple mean or median imputation, to using regression or machine learning methods, right through to multiple imputation using EM, Bayesian methodologies, or user-written imputation procedures [@mice; @Hmisc; etc. ]. These packages also provide approaches for aggregating imputations, and performing diagnostics. These packages provide a wide variety of different imputation methods, with more work from new packages such as `simputation` [@simputation] using the pipe `%>%` operator with imputation procedures and working with the `dplyr` data manipulation. It is again important to remember that care must be taken to avoid bias when performing multiple imputation.
+Software focussing on missing data typically focus on imputation or visualisation. Packages such as mice, Hmisc, mi, Amelia, and mitools provide functions to facilitate imputation, and use a wide range of methods, from the simple mean or median imputation, to using regression or machine learning methods, right through to multiple imputation using EM, Bayesian methodologies, or user-written imputation procedures  [@mice; @Hmisc; etc. ]. These packages also provide approaches for aggregating imputations, and performing diagnostics. These packages provide a wide variety of different imputation methods, with more work from new packages such as `simputation` [@simputation] using the pipe `%>%` operator with imputation procedures and working with the `dplyr` data manipulation. It is again important to remember that care must be taken to avoid bias when performing multiple imputation.
 
 Missing data visualisation packages include the R package VIM, and the stand alone softwares MANET, ggobi, and MissingDataGUI [@Manet; @ggobi ; @MissingDataGui]. 
 
