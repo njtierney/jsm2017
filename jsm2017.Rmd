@@ -223,6 +223,11 @@ ggplot(data = bind_shadow(airquality),
   facet_wrap(~Solar.R_NA,
              ncol = 1)
 
+ggplot(data = bind_shadow(airquality),
+       aes(x = Ozone,
+           colour = Solar.R_NA)) + 
+  geom_density()
+
 ```
 
 
