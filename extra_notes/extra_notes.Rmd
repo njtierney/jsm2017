@@ -9,6 +9,83 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Appendix 
+
+## ggplot's current approach to missing data
+
+
+```{r ggplot-missing-vals}
+
+data_test <- data_frame(x = c(1,2,3,4,5,5,5,5,NA,NA),
+                        y = c(9,5,6,7,4,9,2,4,4,5))
+
+data_test
+
+  ggplot(data_test,
+         aes(x = factor(x),
+             y = y)) + 
+  geom_bar(stat = "identity")
+
+  ggplot(data_test,
+         aes(x = factor(x),
+             y = y)) + 
+  geom_boxplot()
+
+```
+
+
+## Shadow Matrix Examples
+
+
+```{r create-data-structures}
+
+# create a simple example of missing data for the paper to illustrate the shadow matrix
+df_example <-  tibble::tribble(~V1, ~V2, ~V3, ~V4,
+                               "A", 15, 1.2, NA,
+                               "A", NA, NA, T,
+                               "A", 18, NA, F,
+                               "B", 5, 1.6, T,
+                               "B", NA, 0.7, T,
+                               "B", 12, NA, F)
+
+```
+
+Example of the shadow matrix
+
+```{r as-shadow,echo = FALSE}
+
+knitr::kable(as_shadow(df_example))
+
+```
+
+Example of the augmented shadow matrix:
+
+```{r bind_shadows}
+
+knitr::kable(bind_shadow(df_example))
+
+```
+
+Example of the gathered shadow matrix:
+
+```{r gather_shadow}
+
+as_shadow(df_example) %>%
+  mutate(rows = 1:nrow(.)) %>%
+  gather(key = "var",
+         value = "miss",
+         -rows) %>%
+  slice(1:10) %>%
+  knitr::kable()
+
+```
+
+
+Other categories of missing data are sometimes identified: Missing Completeley at Random (MCAR), Missing At Random (MAR), and Missing Not At Random (MNAR) [@Little1988]. MCAR describes where missingness has no association with the observed or unobserved data. MAR describes cases where missingness depends on data observed, but not data unobserved. MNAR is where the missingness of the response is related to an unobserved value relevant to the assessment of interest. These categories will not be discussed further in this paper, and we will instead focus on the approaches used to handle missing data structure.
+
+XXX How have you met missings before? What examples of data were you working with that had missing value problems?
+
+
 
 # Extras
 

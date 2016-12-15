@@ -24,8 +24,8 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
 \hypersetup{unicode=true,
-            pdftitle={naniar: Expanding ggplot2 for better visual exploration missingsness},
-            pdfauthor={Nicholas Tierney, Di Cook},
+            pdftitle={Expanding ggplot2 for better visual exploration of missing data},
+            pdfauthor={Nicholas Tierney, Dianne Cook, Monash University},
             pdfborder={0 0 0},
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
@@ -69,7 +69,6 @@
 \newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
 \newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{{#1}}}}
 \newcommand{\NormalTok}[1]{{#1}}
-\usepackage{longtable,booktabs}
 \usepackage{graphicx,grffile}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -114,15 +113,15 @@
 }
 
 \setlength{\droptitle}{-2em}
-  \title{naniar: Expanding ggplot2 for better visual exploration missingsness}
+  \title{Expanding ggplot2 for better visual exploration of missing data}
   \pretitle{\vspace{\droptitle}\centering\huge}
   \posttitle{\par}
-  \author{Nicholas Tierney, Di Cook}
+  \author{Nicholas Tierney, Dianne Cook, Monash University}
   \preauthor{\centering\large\emph}
   \postauthor{\par}
   \predate{\centering\large\emph}
   \postdate{\par}
-  \date{14/12/2016}
+  \date{15/12/2016}
 
 
 \begin{document}
@@ -130,254 +129,139 @@
 
 \section{Introduction}\label{introduction}
 
-Missing data is ubiquitous in data analysis, and are often the source of
-much energy, frustration, and confusion. Since 2014 there has been
-substantial development in the area of ``tidy data'' {[} @wickham{]},
-which states the (surprisingly simple!) rule that each row is an
-observation and each column is a variable, which makes it easy to reason
-with data. This paper describes approaches for summarising missing data
-in numerical and graphical forms whilst maintaining a tidy format.
+Missing data is ubiquitous in data analysis. Existing approaches to
+exploring missing data structure provide stand alone software, or build
+their own workflow inside R. ggplot2, an implementation of the grammar
+of graphics is an incredibly popular way to produce data visualisations
+does not currently support missing data. Tidy data format (Wickham 2014)
+states that each row is an observation and each column is a variable,
+which makes it easy and consistent to perform data manipulation and
+wrangling. There are currently no guidelines for representing additional
+missing data structures in a tidy format. This paper describes
+approaches for exploring missing data structure with minimal deviation
+from the common workflows of ggplot and tidy data structures. We first
+describe typical sources of missing data, seribe existing software for
+handling missing data, we then go on to explain data structures for
+missing data, visulisations and numerical summaries for missing data,
+and then discuss the impact of these methods, the current limitations,
+and future plans.
 
 \section{Types of missing data}\label{types-of-missing-data}
 
 Canonical sources of missing data are questionnaires. Data obtained from
 questionnaires are often subject to both unknown and known missingness
-structure. For example, unknown missing data structure can arise from
-respondents accidentally failing to answer questions or inadvertently
-providing inappropriate answers. Known missing data structure data may
-arise due to the structure of the questionnaire. For example, the first
-question on a survey might be: `If YES, skip to question 4', resulting
-in questions 2 and 3 missing. If the structure of the questionnaire is
+structure. Unknown missing data structure may arise from respondents
+accidentally failing to answer questions or inadvertently providing
+inappropriate answers. Known missing data structure data may arise due
+to the structure of the questionnaire. For example, the first question
+on a survey might be: `If YES, skip to question 4', resulting in
+questions 2 and 3 missing. If the structure of the questionnaire is
 known, this type of missingness can be evaluated easily. However, if
 this information is not available, the mechanism responsible for
-producing missing data must be inferred from the data.
+producing missing data must be inferred from the data. Longitudinal
+studies are also sources of missing data, where participants may not
+return for future testing sessions. In these cases it is difficult,
+sometimes impossible, to ascertain the reason for the dropouts, and
+hence, whether the missingness structure is known or unknown.
 
-Another common source of known and unknown structured missingness is
-medical examination data. The results of particular medical tests may
-be: missing for purely random reasons, missing due to the procedure, or
-missing based on decisions arising from the observed data. For example,
-a young patient is young may not be subjected to neurodegenerative tests
-reserved for older workers. A final example is dropouts in a
-longitudinal study, where participants do not return for future testing
-sessions. In this case, it is difficult, sometimes impossible, to
-ascertain the reason for the dropouts, and hence, whether the
-missingness structure. However, this ascertainment is essential if the
-estimates based on these data are to be believed as unbiased,
-{[}@Simon1986; @Little1988; @Rubin1976{]}.
-
-Other categories of missing data are sometimes identified: Missing
-Completeley at Random (MCAR), Missing At Random (MAR), and Missing Not
-At Random (MNAR) {[} @Little2002{]}. MCAR describes where missingness
-has no association with the observed or unobserved data. MAR describes
-cases where missingness depends on data observed, but not data
-unobserved. MNAR is where the missingness of the response is related to
-an unobserved value relevant to the assessment of interest.
-
-XXX How have you met missings before? What examples of data were you
-working with that had missing value problems?
+There are a two main approaches to analysis of data with missing values,
+deletion and imputation. The first approach is deletion, where
+variables, or cases may be dropped depending on the amount of missing
+data. It is now widely regarded as best practice to instead impute these
+values, replacing the missing values with some other value estimated
+from the data (Schafer and Graham 2002). In order for estimates to be
+unbiased, it is essential to understand the missingness structure and
+mechanisms (Little 1988; Rubin 1976; Simon and Simonoff 1986).
 
 \subsection{Existing packages for handling missing
 data}\label{existing-packages-for-handling-missing-data}
 
-XXX Describe exisiting packages, and group them into what they do
-
 Software focussing on missing data typically focus on imputation or
-visualisation. Imputation packages such as mice, Hmisc, mi, Amelia, and
-mitools provide functions to facilitate imputation, aggregation of
-imputations, diagnostics, and define user-written imputation functions
-{[}@mice; @Hmisc; etc. {]}. It is important to remember that care must
-be taken to avoid bias when performing multiple imputation.
+visualisation. Packages such as mice, Hmisc, mi, Amelia, and mitools
+provide functions to facilitate imputation, and use a wide range of
+methods, from mean or median imputation, to regression or machine
+learning, to Bayesian methodologies {[}({\textbf{???}});
+({\textbf{???}}); etc. {]}. Packages typically provide approaches for
+aggregating and evaluating imputations. Maintaining a consistent data
+structure when These packages provide a wide variety of different
+imputation methods, with more work from new packages such as
+\texttt{simputation} ({\textbf{???}}) using the pipe
+\texttt{\%\textgreater{}\%} operator with imputation procedures and
+working with the \texttt{dplyr} data manipulation. It is again important
+to take care to avoid bias when performing multiple imputation.
 
 Missing data visualisation packages include the R package VIM, and the
-stand alone softwares MANET, ggobi, and MissingDataGUI.
-
-MANET (Missings Are Now Equally Treated), provides univariate
-visualisations of missing data using linked brushing, using a
-referential plot to display the proportion of missingness for each
-variable as a filled bar plot, and then displayed plots of the data,
-using a histogram (for continuous data) or a barplot (for categorical
-data). The plots of the data were highlighted when values of one
-variable were in the same row as a missing value.
-
-\emph{some sort of figure describing this?}
-
-ggobi provided multivariate visualisation of missing data using two
-methods. The first involved a reference plot providing a visual
-cross-tabulation of the data according to missing or not missing. This
-was then linked to a parallel coordinate plot, such that whichever
-values from the reference plot were then highlighted on the parallel
-coordinate plot. ggobi also provided scatterplot plots of missingness,
-where the variables are \ldots{}
-
-XXX One sentence on why MissingDataGUI is too heavy weight for general
-purpose
-
+stand alone softwares MANET, ggobi, and MissingDataGUI (Cheng et al.
+2015; Unwin et al. 1996; Swayne et al. 2003; Templ et al. 2011). MANET
+(Missings Are Now Equally Treated), provides univariate visualisations
+of missing data using linked brushing between a reference plot of the
+missingness for each variable, and a plot of the data as a histogram or
+barplot. ggobi extends the univariate linked brushing of MANET to
+multivariate, using parallel co-ordinate plots. ggobi also provided
+incoporated missingness into scatterplots, displaying missing values
+from one variable as 10\% below the minimum value on the other axis.
 MissingDataGUI provides a user interface for exploring missing data
-structure both numerically and visually, it also provides visualisation
-methods for visualising imputated values. A limitation of MissingDataGUI
-is that it breaks workflow by being a separate part of analysis, where
-one might be performing an analysis using R, using Also being separate
-from
+structure both numerically and visually. A limitation of these softwares
+are that being stand alone software packages breaks workflow from
+statistical analysis. Although using a GUI to explore missing data may
+provide some valuable insights into important structures, it can then be
+hard to incorporate these unscripted insights into reproducible
+analyses.
 
-XXX One paragraph on how ggplot2 handles missing values (or not): a
-message is printed and then the missings are ignored
+VIM (Visualising and Imputing Missing Data) is an R package that
+provides methods for both imputation and visualisation of missing data.
+In particular it provides visualisations that identify observed,
+imputed, and missing values. VIM also identifies imputed cases by adding
+a suffix to a variable, so Var1 would have a sibling indicator column,
+Var1\_imp, where each case is TRUE or FALSE to indicate imputed or not.
+Although VIM provides R functions to visualise and impute missing data,
+it's syntax for data manipulation and visualisation is difficult to
+extend, and as a result can be difficult to keep in a tidy framework.
+ggplot2, an implementation of Lee Wilkenson's grammer of graphics in R
+(very popular), currently only provides visualisation of missing values
+for categories when there is a category variable, this provides
+visualisations for missing data when the values being plotted are
+categories, it treats one of the categories as a NA value. For all other
+plots, ggplot2 prints a warning message notifying the user how many
+missing values have been ommited form the plot.
 
-ggplot2, a (very popular) package for producing elegant graphics in R,
-currently only provides visualisation for missing data when there is a
-category variable, this provides visualisations for missing data when
-the values being plotted are categories, it treats one of the categories
-as a NA value. Outside of this, ggplot2 does not provide much support
-for visualisation of missing data. It currently prints out a warning
-message when a plot us shown that contains missing data, which states
-that it has removed a particular number of rows containing
-``non-finite'' values.
-
-See some examples below (not for the paper, but for explaining right
-now:
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{data_test <-}\StringTok{ }\KeywordTok{data_frame}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{4}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{5}\NormalTok{,}\OtherTok{NA}\NormalTok{,}\OtherTok{NA}\NormalTok{),}
-                        \DataTypeTok{y =} \KeywordTok{c}\NormalTok{(}\DecValTok{9}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{6}\NormalTok{,}\DecValTok{7}\NormalTok{,}\DecValTok{4}\NormalTok{,}\DecValTok{9}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{4}\NormalTok{,}\DecValTok{4}\NormalTok{,}\DecValTok{5}\NormalTok{))}
-
-  \KeywordTok{ggplot}\NormalTok{(data_test,}
-         \KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{factor}\NormalTok{(x),}
-             \DataTypeTok{y =} \NormalTok{y)) +}\StringTok{ }
-\StringTok{  }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{stat =} \StringTok{"identity"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{jsm2017_files/figure-latex/ggplot-missing-vals-1.png}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-  \KeywordTok{ggplot}\NormalTok{(data_test,}
-         \KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{factor}\NormalTok{(x),}
-             \DataTypeTok{y =} \NormalTok{y)) +}\StringTok{ }
-\StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{jsm2017_files/figure-latex/ggplot-missing-vals-2.png}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-  \KeywordTok{ggplot}\NormalTok{(data_test,}
-         \KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{factor}\NormalTok{(x),}
-             \DataTypeTok{y =} \NormalTok{y)) +}\StringTok{ }
-\StringTok{  }\KeywordTok{geom_point}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{jsm2017_files/figure-latex/ggplot-missing-vals-3.png}
+We see that there are many ways to explore missing data structure and
+imputation, however there is no unified methodology or approach to
+representing data structures, imputing values, and visualising missing
+data structure. We now discuss how we can represent missing data in
+particular data structures that align themselves with a tidy data
+workflow.
 
 \section{Data structures for missing
 data}\label{data-structures-for-missing-data}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# create a simple example of missing data for the paper to illustrate the shadow matrix}
-\NormalTok{df_example <-}\StringTok{  }\NormalTok{tibble::}\KeywordTok{tribble}\NormalTok{(~V1, ~V2, ~V3, ~V4,}
-                               \StringTok{"A"}\NormalTok{, }\DecValTok{15}\NormalTok{, }\FloatTok{1.2}\NormalTok{, }\OtherTok{NA}\NormalTok{,}
-                               \StringTok{"A"}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\OtherTok{NA}\NormalTok{, T,}
-                               \StringTok{"A"}\NormalTok{, }\DecValTok{18}\NormalTok{, }\OtherTok{NA}\NormalTok{, F,}
-                               \StringTok{"B"}\NormalTok{, }\DecValTok{5}\NormalTok{, }\FloatTok{1.6}\NormalTok{, T,}
-                               \StringTok{"B"}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\FloatTok{0.7}\NormalTok{, T,}
-                               \StringTok{"B"}\NormalTok{, }\DecValTok{12}\NormalTok{, }\OtherTok{NA}\NormalTok{, F)}
-\end{Highlighting}
-\end{Shaded}
-
 Representing missing data structure is achieed using the shadow matrix,
-introduced in Swayne and Buja {[}-@Swayne1998{]}. The shadow matrix is
-the same dimension as the data, and consists of binary indicators of
-``missingness'' of data values. In our case, missing is represented as
-``NA'', and not missing is represented as ``!NA'', although these may be
-represented as 1 and 0, respectively. This helps us explicitly describe
-the missingness structure. Representing it as its own separate matrix
-also helps us separate out the multivariate nature of missing data, as
-different cases have missing values in different sets of variables.
+introduced in Swayne and Buja Swayne and Buja (1998; 1998). The shadow
+matrix is the same dimension as the data, and consists of binary
+indicators of ``missingness'' of data values. In our case, missing is
+represented as ``NA'', and not missing is represented as ``!NA'',
+although these may be represented as 1 and 0, respectively. This can be
+seen in figure 1 below. This structure can also be extended to allow for
+additional factor levels to be created, where 0 indicates presence, 1
+indicates missing, 2 might indicate an imputed value, or 3 might
+indicate a particular type or class of missingness - perhaps missing due
+to a particular reason.
 
-\begin{figure}[htbp]
+\begin{figure}[h]
 \centering
-\includegraphics{/Users/tierneyn/Google Drive/ALL THE THINGS/PhD/code/R/jsm2017/diagram.pdf}
-\caption{diagram of shadow missing}
+\includegraphics[width=270pt]{/Users/tierneyn/Google Drive/ALL THE THINGS/PhD/code/R/jsm2017/diagram.png}
 \end{figure}
 
-The shadow matrix is represented below:
+The shadow matrix is represented in figure 1 going from Data to Shadow
+to show the existing datastructure, adding the suffix ``\_NA" to the
+variables. The data matrix can be augmented to include the shadow
+matrix, which facilitates visualisation of univariate and bivariate
+missing data visualisations. Another format is to display it in long
+form, which facilitates heatmap type visualisations of missing data.
 
-\begin{longtable}[]{@{}llll@{}}
-\toprule
-V1\_NA & V2\_NA & V3\_NA & V4\_NA\tabularnewline
-\midrule
-\endhead
-!NA & !NA & !NA & NA\tabularnewline
-!NA & NA & NA & !NA\tabularnewline
-!NA & !NA & NA & !NA\tabularnewline
-!NA & !NA & !NA & !NA\tabularnewline
-!NA & NA & !NA & !NA\tabularnewline
-!NA & !NA & NA & !NA\tabularnewline
-\bottomrule
-\end{longtable}
+\subsection{Visualising missing data}\label{visualising-missing-data}
 
-It can also be bound in a wide format, column-wise, to the existing
-datastructure, adding the suffix ``\_NA" to the data.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{knitr::}\KeywordTok{kable}\NormalTok{(}\KeywordTok{bind_shadow}\NormalTok{(df_example))}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{longtable}[]{@{}lrrlllll@{}}
-\toprule
-V1 & V2 & V3 & V4 & V1\_NA & V2\_NA & V3\_NA & V4\_NA\tabularnewline
-\midrule
-\endhead
-A & 15 & 1.2 & NA & !NA & !NA & !NA & NA\tabularnewline
-A & NA & NA & TRUE & !NA & NA & NA & !NA\tabularnewline
-A & 18 & NA & FALSE & !NA & !NA & NA & !NA\tabularnewline
-B & 5 & 1.6 & TRUE & !NA & !NA & !NA & !NA\tabularnewline
-B & NA & 0.7 & TRUE & !NA & NA & !NA & !NA\tabularnewline
-B & 12 & NA & FALSE & !NA & !NA & NA & !NA\tabularnewline
-\bottomrule
-\end{longtable}
-
-Another format is to display it in long form, as below:
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{as_shadow}\NormalTok{(df_example) %>%}
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{rows =} \DecValTok{1}\NormalTok{:}\KeywordTok{nrow}\NormalTok{(.)) %>%}
-\StringTok{  }\KeywordTok{gather}\NormalTok{(}\DataTypeTok{key =} \StringTok{"var"}\NormalTok{,}
-         \DataTypeTok{value =} \StringTok{"miss"}\NormalTok{,}
-         \NormalTok{-rows) %>%}
-\StringTok{  }\KeywordTok{slice}\NormalTok{(}\DecValTok{1}\NormalTok{:}\DecValTok{10}\NormalTok{) %>%}
-\StringTok{  }\NormalTok{knitr::}\KeywordTok{kable}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{longtable}[]{@{}rll@{}}
-\toprule
-rows & var & miss\tabularnewline
-\midrule
-\endhead
-1 & V1\_NA & !NA\tabularnewline
-2 & V1\_NA & !NA\tabularnewline
-3 & V1\_NA & !NA\tabularnewline
-4 & V1\_NA & !NA\tabularnewline
-5 & V1\_NA & !NA\tabularnewline
-6 & V1\_NA & !NA\tabularnewline
-1 & V2\_NA & !NA\tabularnewline
-2 & V2\_NA & NA\tabularnewline
-3 & V2\_NA & !NA\tabularnewline
-4 & V2\_NA & !NA\tabularnewline
-\bottomrule
-\end{longtable}
-
-\subsection{Visualisation of missing
-data}\label{visualisation-of-missing-data}
-
-\textbf{Heatmap (plot of the long form)}
+\textbf{Heatmap}
 
 One common method for visualising missing data is to display a heatmap
 of the shadow matrix. This approach can be very helpful for giving an
@@ -385,68 +269,40 @@ overview of which variables contain the most missingness. Methods can
 also be applied to rearrange rows and columns to find clusters, and
 identify other interesting features of the data that may have previously
 been hidden or unclear. This method is shown below using the
-\texttt{vis\_miss} from the \texttt{visdat} package.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(visdat)}
-\KeywordTok{vis_miss}\NormalTok{(airquality)}
-\end{Highlighting}
-\end{Shaded}
+\texttt{vis\_miss} command from the \texttt{visdat} package.
 
 \includegraphics{jsm2017_files/figure-latex/unnamed-chunk-1-1.png}
 
-Similar approaches has been used in other missing data packages such as
+Similar approaches have been used in other missing data packages such as
 VIM, mi, Amelia, and MissingDataGUI. However this plot provides the
 additional benefits of being in the ggplot framework, which gives users
-greater control over the plot appearance, the interface and provides the
-plot in ggplot, which allows for the user to alter and update the figure
-as they need. To produce this plot, the data is required to be in long
-form.
+greater control over the plot appearance, and alter and update the
+figure as they need. The user can also apply clustering of the rows and
+columns using the \texttt{cluster\ =\ TRUE} argument.
 
 \textbf{Facetted plots}
 
 An advantage of the wide shadow format is that it allows for referring
 to missingness of other variables along the values of another variable.
-For example:
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =} \KeywordTok{bind_shadow}\NormalTok{(airquality),}
-       \KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \NormalTok{Ozone)) +}\StringTok{ }
-\StringTok{  }\KeywordTok{geom_histogram}\NormalTok{() +}\StringTok{ }
-\StringTok{  }\KeywordTok{facet_wrap}\NormalTok{(~Solar.R_NA,}
-             \DataTypeTok{ncol =} \DecValTok{1}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+For example, we an explore the values of when Solar.R is present and
+missing. The density plot shows both missing and not missing Solar.R in
+one plot, but the histogram shows that there really aren't many values
+of Ozone that are missing.
 
 \begin{verbatim}
-## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+ggplot(data = bind_shadow(airquality),
+       aes(x = Ozone)) + 
+  geom_histogram() + 
+  facet_wrap(~Solar.R_NA,
+             ncol = 1)
+
+ggplot(data = bind_shadow(airquality),
+       aes(x = Ozone,
+           colour = Solar.R_NA)) + 
+  geom_density()
 \end{verbatim}
 
-\begin{verbatim}
-## Warning: Removed 37 rows containing non-finite values (stat_bin).
-\end{verbatim}
-
-\includegraphics{jsm2017_files/figure-latex/unnamed-chunk-2-1.png}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =} \KeywordTok{bind_shadow}\NormalTok{(airquality),}
-       \KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \NormalTok{Ozone,}
-           \DataTypeTok{colour =} \NormalTok{Solar.R_NA)) +}\StringTok{ }
-\StringTok{  }\KeywordTok{geom_density}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Warning: Removed 37 rows containing non-finite values (stat_density).
-\end{verbatim}
-
-\includegraphics{jsm2017_files/figure-latex/unnamed-chunk-2-2.png}
-
-This plot shows a histogram of Ozone, showing what the distribution of
-Ozone is when Solar.R is missing.
+\includegraphics{jsm2017_files/figure-latex/bind-shadow-density-1.png}
 
 Using this data structure facilitates missing data visualisation with
 ggplot as it means that the user can directly refer to the variable that
@@ -456,8 +312,8 @@ values are affected by Solar.R. In cases where there is no missing data
 in the variable that they want to ``split'' the missingness by, the plot
 simple returns a single facetted plot.
 
-A similar method of visualisation could also be explored using
-\texttt{geom\_missing\_point()} from the ggmissing package:
+Another method of visualisation can be explored using
+\texttt{geom\_missing\_point()} from the \texttt{ggmissing} package:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -468,34 +324,23 @@ A similar method of visualisation could also be explored using
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{jsm2017_files/figure-latex/unnamed-chunk-3-1.png}
+\includegraphics{jsm2017_files/figure-latex/ggeom_missing-1.png}
 
-This utilises methods from ggobi and Manet, where missing values are
-replaced with values 10\% lower than the minimum value in that variable,
-the missing values are also different colours, so that missingness
-becomes preattentive.
+This replaces missing values to be 10\% below the minimum value, a
+technique borrowed from ggobi. The missing values are also different
+colours to make missingness preattentive.
 
-\subsection{Usage}\label{usage}
+\subsection{Numerical Summaries for missing
+data}\label{numerical-summaries-for-missing-data}
 
 Numerical summaries of missing data are also made easy with some helper
 functions from the \texttt{ggmissing} package. For example, finding the
 overall proportion of missing values in the data overall, or the cases,
 or variables, can be done with \texttt{percent\_missing\_*} functions.
 
-Single number summaries:
-
-\begin{itemize}
-\tightlist
-\item
-  The proportion elements in dataset that contains missing values
-\item
-  The proportion of variables that contain any missing values
-\item
-  the proportion of cases that contain any missing values
-\end{itemize}
-
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{# Proportion elements in dataset that contains missing values}
 \KeywordTok{percent_missing_df}\NormalTok{(airquality)}
 \end{Highlighting}
 \end{Shaded}
@@ -506,6 +351,7 @@ Single number summaries:
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{# Proportion of variables that contain any missing values}
 \KeywordTok{percent_missing_var}\NormalTok{(airquality)}
 \end{Highlighting}
 \end{Shaded}
@@ -516,6 +362,7 @@ Single number summaries:
 
 \begin{Shaded}
 \begin{Highlighting}[]
+ \CommentTok{# Proportion of cases that contain any missing values}
 \KeywordTok{percent_missing_case}\NormalTok{(airquality)}
 \end{Highlighting}
 \end{Shaded}
@@ -526,34 +373,26 @@ Single number summaries:
 
 We can also look at the number and percent of missings in each case, and
 in each variable with \texttt{summary\_missing\_case}, and
-\texttt{summary\_missing\_var}, which both return tibbles.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{ggmissing::}\KeywordTok{summary_missing_case}\NormalTok{(airquality)}
-\end{Highlighting}
-\end{Shaded}
+\texttt{summary\_missing\_var}.
 
 \begin{verbatim}
-## # A tibble: 153 × 3
-##     case n_missing  percent
-##    <int>     <int>    <dbl>
-## 1      1         0  0.00000
-## 2      2         0  0.00000
-## 3      3         0  0.00000
-## 4      4         0  0.00000
-## 5      5         2 33.33333
-## 6      6         1 16.66667
-## 7      7         0  0.00000
-## 8      8         0  0.00000
-## 9      9         0  0.00000
-## 10    10         1 16.66667
-## # ... with 143 more rows
+summary_missing_case(airquality)
+\end{verbatim}
+
+\begin{verbatim}
+## # A tibble: 5 × 3
+##    case n_missing  percent
+##   <int>     <int>    <dbl>
+## 1     1         0  0.00000
+## 2     2         0  0.00000
+## 3     3         0  0.00000
+## 4     4         0  0.00000
+## 5     5         2 33.33333
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{ggmissing::}\KeywordTok{summary_missing_var}\NormalTok{(airquality)}
+\KeywordTok{summary_missing_var}\NormalTok{(airquality)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -573,7 +412,7 @@ We can also present tabulations that present more complicated inferences
 with \texttt{table\_missing\_case} and \texttt{table\_missing\_var}.
 These tally up the number of missings in each case or variable, then
 describe how many cases or variables have that many missings, and the
-percentage of
+percentage of cases or variables that contain missings
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -598,34 +437,123 @@ percentage of
 
 \begin{verbatim}
 ## # A tibble: 3 × 3
-##   n_missing_in_var n_vars   percent
-##              <int>  <int>     <dbl>
-## 1                0      4 2.6143791
-## 2                7      1 0.6535948
-## 3               37      1 0.6535948
+##   n_missing_in_var n_vars  percent
+##              <int>  <int>    <dbl>
+## 1                0      4 66.66667
+## 2                7      1 16.66667
+## 3               37      1 16.66667
 \end{verbatim}
 
 \section{Discussion}\label{discussion}
 
-Here we have discussed some of the common issues with investigating
-missing data.
+We describe the current packages and software for exploring and
+visualising missing data.
 
-You can also write a few sentences on computing on the fly vs data
-storage
+This is the \texttt{bind\_shadow} versus computing on the fly with
+\texttt{is\_na}
 
-Limitation
+\begin{verbatim}
+
+ggplot(data = bind_shadow(airquality),
+       aes(x = Ozone)) + 
+  geom_histogram() + 
+  facet_wrap(Solar.R_NA),
+             ncol = 1)
+             
+ggplot(data = airquality,
+       aes(x = Ozone)) + 
+  geom_histogram() + 
+  facet_wrap(is_na(Solar.R),
+             ncol = 1)
+\end{verbatim}
+
+It is important to consider then the implications for storage, when
+using bind\_shadow, and computation, when using the \texttt{is\_na}
+approach. \texttt{bind\_shadow} provides some flexibility and
+extensibility, as it allows for more complex types of missingness. For
+example, it could extending from missing, \texttt{NA},and not missing,
+\texttt{!NA}, to extend to different mechanisms for missingness
+\texttt{NA\_missing\_for\_reason\_A},
+\texttt{NA\_missing\_for\_reason\_B}, or imputed values
+\texttt{value\_imputed}.
+
+\textbf{Limitations}
+
+More research is needed to be done on how to visualise, store, and
+summarise imputations while staying in a tidy data framework. Multiple
+imputation could be stored using nested dataframes for each multiple
+imputation. We didn't discuss how to visualise imputations, but you can
+imagine a similar framework for labelling imputations in a data
+structure.
+
+\textbf{Future work}
+
+explore model-based approaches for exploring based missing data
+structures.
 
 \begin{itemize}
+\tightlist
 \item
-  We didn't discuss how to visualise imputations, but you can imagine a
-  similar framework for labelling imputations in a data structure.
+  How does this expand the field?
 \item
+  How is this different to previous findings / usage?
 \end{itemize}
 
-Future work explore model-based approaches for exploring based missing
-data structures.
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
 
-\section{References}\label{references}
+\hypertarget{refs}{}
+\hypertarget{ref-cheng2015}{}
+Cheng, Xiaoyue, Dianne Cook, Heike Hofmann, and others. 2015. ``Visually
+Exploring Missing Values in Multivariable Data Using a Graphical User
+Interface.'' \emph{Journal of Statistical Software} 68 (1). Foundation
+for Open Access Statistics: 1--23.
+
+\hypertarget{ref-Little1988}{}
+Little, Roderick JA. 1988. ``A Test of Missing Completely at Random for
+Multivariate Data with Missing Values.'' \emph{Journal of the American
+Statistical Association} 83 (404). Taylor \& Francis: 1198--1202.
+
+\hypertarget{ref-Rubin1976}{}
+Rubin, Donald B. 1976. ``Inference and Missing Data.'' \emph{Biometrika}
+63 (3). Biometrika Trust: 581--92.
+
+\hypertarget{ref-Schafer2002}{}
+Schafer, Joseph L., and John W. Graham. 2002. ``Missing data: Our view
+of the state of the art.'' \emph{Psychological Methods} 7 (2): 147--77.
+doi:\href{https://doi.org/10.1037//1082-989X.7.2.147}{10.1037//1082-989X.7.2.147}.
+
+\hypertarget{ref-simon-simonoff}{}
+Simon, Gary A., and Jeffrey S Simonoff. 1986. ``Diagnostic Plots for
+Missing Data in Least Squares Regression.'' \emph{Journal of the
+American Statistical Association} 81 (394). Taylor \& Francis Group:
+501--9.
+
+\hypertarget{ref-Swayne1998}{}
+Swayne, Deborah F, and Andreas Buja. 1998. ``Missing Data in Interactive
+High-Dimensional Data Visualization.'' \emph{Computational Statistics}
+13 (1). Citeseer: 15--26.
+
+\hypertarget{ref-swayne2003ggobi}{}
+Swayne, Deborah F, Duncan Temple Lang, Andreas Buja, and Dianne Cook.
+2003. ``GGobi: Evolving from Xgobi into an Extensible Framework for
+Interactive Data Visualization.'' \emph{Computational Statistics \& Data
+Analysis} 43 (4). Elsevier: 423--44.
+
+\hypertarget{ref-vim}{}
+Templ, Matthias, Andreas Alfons, Alexander Kowarik, and Bernd Prantner.
+2011. ``VIM: Visualization and Imputation of Missing Values.'' \emph{R
+Package Version} 2 (3).
+
+\hypertarget{ref-Unwin1996}{}
+Unwin, Antony, George Hawkins, Heike Hofmann, and Bernd Siegl. 1996.
+``Interactive Graphics for Data Sets with Missing Values - Manet.''
+\emph{Journal of Computational and Graphical Statistics} 5 (2). Taylor
+\& Francis Group: 113--22.
+
+\hypertarget{ref-Wickham2014}{}
+Wickham, Hadley. 2014. ``Tidy Data.'' \emph{J. Stat. Softw.} 59 (1):
+1--23.
 
 
 \end{document}

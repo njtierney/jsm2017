@@ -1,0 +1,8 @@
+---
+title: "Abstract for JSM"
+output: html_document
+---
+
+# Abstract
+
+Missing data is ubiquitous in data analysis. Existing approaches to exploring missing data structure provide stand alone software, or build their own workflow inside R. ggplot2, an implementation of the grammar of graphics is an incredibly popular way to produce data visualisations does not currently support missing data. Tidy data format [@Wickham2014] states that each row is an observation and each column is a variable, which makes it easy and consistent to perform data manipulation and wrangling. There are currently no guidelines for representing additional missing data structures in a tidy format. This paper describes approaches for exploring missing data structure with minimal deviation from the common workflows of ggplot and tidy data structures.
