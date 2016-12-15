@@ -1,7 +1,6 @@
 ---
 title: 'Expanding ggplot2 for better visual exploration of missing data'
-author: "Nicholas Tierney, Dianne Cook, Monash University"
-date: "15/12/2016"
+author: "Nicholas Tierney & Dianne Cook, Monash University"
 output:
   pdf_document:
     keep_tex: yes
@@ -101,44 +100,42 @@ prop_na <- function(x){
 
 # Introduction
 
-Missing data is ubiquitous in data analysis. Existing approaches to exploring missing data structure provide stand alone software, or build their own workflow inside R. ggplot2, an implementation of the grammar of graphics is an incredibly popular way to produce data visualisations does not currently support missing data. Tidy data format [@Wickham2014] states that each row is an observation and each column is a variable, which makes it easy and consistent to perform data manipulation and wrangling. There are currently no guidelines for representing additional missing data structures in a tidy format. This paper describes approaches for exploring missing data structure with minimal deviation from the common workflows of ggplot and tidy data structures. We first describe typical sources of missing data, seribe existing software for handling missing data, we then go on to explain data structures for missing data, visulisations and numerical summaries for missing data, and then discuss the impact of these methods, the current limitations, and future plans.
+Missing data is ubiquitous in data analysis. ggplot2, an implementation of the grammar of graphics is an incredibly popular way to produce data visualisations does not currently support missing data [@wickham2009ggplot2]. Principles of tidy data [@Wickham2014] states that each row is an observation and each column is a variable, which makes it easy and consistent to perform data manipulation and wrangling. However, there are currently no guidelines for representing additional missing data structures in a tidy format. This paper describes approaches for exploring missing data structure with minimal deviation from the common workflows of ggplot and tidy data structures.
 
 # Types of missing data
 
 Canonical sources of missing data are questionnaires. Data obtained from questionnaires are often subject to both unknown and known missingness structure. Unknown missing data structure may arise from respondents accidentally failing to answer questions or inadvertently providing inappropriate answers. Known missing data structure data may arise due to the structure of the questionnaire. For example, the first question on a survey might be: 'If YES, skip to question 4', resulting in questions 2 and 3 missing. If the structure of the questionnaire is known, this type of missingness can be evaluated easily. However, if this information is not available, the mechanism responsible for producing missing data must be inferred from the data. Longitudinal studies are also sources of missing data, where participants may not return for future testing sessions. In these cases it is difficult, sometimes impossible, to ascertain the reason for the dropouts, and hence, whether the missingness structure is known or unknown.
 
-There are a two main approaches to analysis of data with missing values, deletion and imputation. The first approach is deletion, where variables, or cases may be dropped depending on the amount of missing data. It is now widely regarded as best practice to instead impute these values, replacing the missing values with some other value estimated from the data [@Schafer2002]. In order for estimates to be unbiased, it is essential to understand the missingness structure and mechanisms [@Little1988; @Rubin1976; @simon-simonoff]. 
+There are a two approaches to analysis of data with missing values, deletion and imputation. Deletion methods drop variables or cases, depending on the amount of missing data, and imputation methods replace the missing values with some other value estimated from the data. It is now widely regarded as best practice to impute these values, however in order for estimates to be unbiased, it is essential to understand the missingness structure and mechanisms [@Little1988; @Rubin1976; @simon-simonoff; @Schafer2002]. 
 
 ## Existing packages for handling missing data
 
-Software focussing on missing data typically focus on imputation or visualisation. Packages such as mice, Hmisc, mi, Amelia, and mitools provide functions to facilitate imputation, and use a wide range of methods, from mean or median imputation, to regression or machine learning, to Bayesian methodologies [@mice; @Hmisc; etc. ]. Packages typically provide approaches for aggregating and evaluating imputations. Maintaining a consistent data structure when  These packages provide a wide variety of different imputation methods, with more work from new packages such as `simputation` [@simputation] using the pipe `%>%` operator with imputation procedures and working with the `dplyr` data manipulation. It is again important to take care  to avoid bias when performing multiple imputation.
+Software focussing on missing data typically focus on imputation or visualisation. Packages such as mice, Hmisc, mi, norm, and Amelia provide functions to facilitate imputation, and use a wide range of methods, from mean or median imputation, to regression or machine learning, to Bayesian methodologies, as well as providing diagnostics on the imputations themselves [@mice; @Hmisc; @mi; @norm; @Amelia].
 
-Missing data visualisation packages include the R package VIM, and the stand alone softwares MANET, ggobi, and MissingDataGUI [@cheng2015; @Unwin1996; @swayne2003ggobi; @vim].  MANET (Missings Are Now Equally Treated), provides univariate visualisations of missing data using linked brushing between a reference plot of the missingness for each variable, and a plot of the data as a histogram or barplot. ggobi extends the univariate linked brushing of MANET to multivariate, using parallel co-ordinate plots. ggobi also provided incoporated missingness into scatterplots, displaying missing values from one variable as 10% below the minimum value on the other axis. MissingDataGUI provides a user interface for exploring missing data structure both numerically and visually.  A limitation of these softwares are that being stand alone software packages breaks workflow from statistical analysis. Although using a GUI to explore missing data may provide some valuable insights into important structures, it can then be hard to incorporate these unscripted insights into reproducible analyses.
+Missing data visualisation packages include the R package VIM, and the stand alone softwares MANET, ggobi, and MissingDataGUI [@cheng2015; @Unwin1996; @swayne2003ggobi; @vim].  MANET (Missings Are Now Equally Treated), provides univariate visualisations of missing data using linked brushing between a reference plot of the missingness for each variable, and a plot of the data as a histogram or barplot. ggobi extends the univariate linked brushing of MANET to multivariate, using parallel co-ordinate plots. ggobi also provided incoporated missingness into scatterplots, displaying missing values from one variable as 10% below the minimum value on the other axis. MissingDataGUI provides a user interface for exploring missing data structure both numerically and visually. Using a GUI to explore missing data makes it easier to glean valuable insights into important structures, but may then make it hard to incorporate these unscripted insights into reproducible analyses, and may also distract and break the workflow from statistical analysis.
 
-VIM (Visualising and Imputing Missing Data) is an R package that provides methods for both imputation and visualisation of missing data. In particular it provides visualisations that identify observed, imputed, and missing values. VIM also identifies imputed cases by adding a suffix to a variable, so Var1 would have a sibling indicator column, Var1_imp, where each case is TRUE or FALSE to indicate imputed or not. Although VIM provides R functions to visualise and impute missing data, it's syntax for data manipulation and visualisation is difficult to extend, and as a result can be difficult to keep in a tidy framework. ggplot2, an implementation of Lee Wilkenson's grammer of graphics in R (very popular), currently only provides visualisation of missing values for categories when there is a category variable, this provides visualisations for missing data when the values being plotted are categories, it treats one of the categories as a NA value. For all other plots, ggplot2 prints a warning message notifying the user how many missing values have been ommited form the plot.
+VIM (Visualising and Imputing Missing Data) is an R package that provides methods for both imputation and visualisation of missing data. In particular it provides visualisations that identify observed, imputed, and missing values. VIM also identifies imputed cases by adding a suffix to a variable, so Var1 would have a sibling indicator column, Var1_imp, where each case is TRUE or FALSE to indicate imputation. Although VIM provides R functions to visualise and impute missing data, it's syntax for data manipulation and visualisation is difficult to extend, and does not follow tidy data principles. ggplot2 currently only provides visualisation of missing values for categories treating categories as NA values. For all other plots, ggplot2 prints a warning message of the number of missing values ommited.
 
-We see that there are many ways to explore missing data structure and imputation, however there is no unified methodology or approach to representing data structures, imputing values, and visualising missing data structure. We now discuss how we can represent missing data in particular data structures that align themselves with a tidy data workflow.
+There are many ways to explore missing data structure and imputation, however there is no unified methodology to explore, or visualise missing data. We now discuss ways to represent missing data that fit in with the grammar of graphics and tidy data.
 
 # Data structures for missing data
 
-Representing missing data structure is achieed using the shadow matrix, introduced in Swayne and Buja @Swayne1998 [-@Swayne1998]. The shadow matrix is the same dimension as the data, and consists of binary indicators of "missingness" of data values. In our case, missing is represented as "NA", and not missing is represented as "!NA", although these may be represented as 1 and 0, respectively. This can be seen in figure 1 below. This structure can also be extended to allow for additional factor levels to be created, where 0 indicates presence, 1 indicates missing, 2 might indicate an imputed value, or 3 might indicate a particular type or class of missingness - perhaps missing due to a particular reason.
+Representing missing data structure is achieed using the shadow matrix, introduced in Swayne and Buja @Swayne1998 [-@Swayne1998]. The shadow matrix is the same dimension as the data, and consists of binary indicators of missingness of data values, where missing is represented as "NA", and not missing is represented as "!NA". Although these may be represented as 1 and 0, respectively. This representation can be seen in figure 1 below, adding the sufic "_NA" to the variables. This structure can also be extended to allow for additional factor levels to be created. For example 0 indicates data presence, 1 indicates missing values, 2 indicates imputed value, and 3 might indicate a particular type or class of missingness, where reasons for missingness might be known or inferred. The data matrix can also be augmented to include the shadow matrix, which facilitates visualisation of univariate and bivariate missing data visualisations. Another format is to display it in long form, which facilitates heatmap style visualisations. This approach can be very helpful for giving an overview of which variables contain the most missingness. Methods can also be applied to rearrange rows and columns to find clusters, and identify other interesting features of the data that may have previously been hidden or unclear. 
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=270pt]{/Users/tierneyn/Google Drive/ALL THE THINGS/PhD/code/R/jsm2017/diagram.png}
+\caption{Representations of missing data structures, and subsequent visualisations}
 \end{figure}
 
-<!-- ![Diagram of the representations of missing data structures, and subsequent visualisations](/Users/tierneyn/Google Drive/ALL THE THINGS/PhD/code/R/jsm2017/diagram.png) -->
-
-
-
-The shadow matrix is represented in figure 1 going from Data to Shadow to show the existing datastructure, adding the suffix "_NA" to the variables. The data matrix can be augmented to include the shadow matrix, which facilitates visualisation of univariate and bivariate missing data visualisations. Another format is to display it in long form, which facilitates heatmap type visualisations of missing data.
 
 ## Visualising missing data
 
 **Heatmap**
 
-One common method for visualising missing data is to display a heatmap of the shadow matrix. This approach can be very helpful for giving an overview of which variables contain the most missingness. Methods can also be applied to rearrange rows and columns to find clusters, and identify other interesting features of the data that may have previously been hidden or unclear. This method is shown below using the `vis_miss` command from the `visdat` package.
+A missing data heatmap is shown below using the `vis_miss` command from the `visdat` package. This displays the the airquality dataset included in base R, which contains Daily air quality measurements in New York, May to September 1973.
+
+
 
 ```{r fig.height = 4, fig.width = 10, echo = FALSE}
 
@@ -150,11 +147,13 @@ gridExtra::grid.arrange(p1,p2,ncol = 2)
 
 ```
 
-Similar approaches have been used in other missing data packages such as VIM, mi, Amelia, and MissingDataGUI. However this plot provides the additional benefits of being in the ggplot framework, which gives users greater control over the plot appearance, and alter and update the figure as they need. The user can also apply clustering of the rows and columns using the `cluster = TRUE` argument.
+__Figure 2. Heatmap of missing data using `vis_miss` (left) using clustering on rows and columns (right) .__
 
-**Facetted plots**
+Similar approaches have been used in other missing data packages such as VIM, mi, Amelia, and MissingDataGUI. However this plot is created in the ggplot framework, giving users greater control over the plot appearance. The user can also apply clustering of the rows and columns using the `cluster = TRUE` argument (shown on the right).
 
-An advantage of the wide shadow format is that it allows for referring to missingness of other variables along the values of another variable. For example, we an explore the values of when Solar.R is present and missing. The density plot shows both missing and not missing Solar.R in one plot, but the histogram shows that there really aren't many values of Ozone that are missing.
+**Univariate plots split by missingness**
+
+An advantage of the augmented shadow format, where the data and shadow are side by side, is that it allows for examining univariate distributions according to the presence or absence of another variable. The plot below shows the values of Ozone when Solar.R is present and missing, on the left is a faceted histogram, and on the right is an overlayed density.
 
 ```
 ggplot(data = bind_shadow(airquality),
@@ -188,7 +187,9 @@ gridExtra::grid.arrange(p1,p2,ncol = 2)
 
 ```
 
-Using this data structure facilitates missing data visualisation with ggplot as it means that the user can directly refer to the variable that they want to explore missingness. In the case above, the user is looking at a histogram of Ozone, but is then able to look at how many Ozone values are affected by Solar.R. In cases where there is no missing data in the variable that they want to "split" the missingness by, the plot simple returns a single facetted plot.
+__Figure 3., Examining univariate distributions of Ozone according to the presence or absence of Solar Radiation.__
+
+Using this data structure allows for the user to directly refer to the variable for which they want to explore the effect of missingness using the suffix _NA after the variable. In the case above, the user is looking at a histogram of Ozone, but is then able to look at how many Ozone values are affected by Solar.R. In cases where there is no missing data in the variable that they want to "split" the missingness by, the plot simple returns a single facetted plot.
 
 Another method of visualisation can be explored using `geom_missing_point()` from the `ggmissing` package:
 
@@ -200,11 +201,14 @@ ggplot(data = airquality,
   geom_missing_point()
 ```
 
-This replaces missing values to be 10% below the minimum value, a technique borrowed from ggobi. The missing values are also different colours to make missingness preattentive.
+__Figure 4., Visualising Ozone and Solar Radiation and where they are missing in the other variable.__
+
+
+This replaces missing values to be 10% below the minimum value, a technique borrowed from ggobi. The missing values are also different colours to make missingness preattentive. In this plot we see that there is a mostly uniform spread of missing values for Solar.R and Ozone. As `geom_missing_point` is a defined geometry for ggplot2, it allows users to have full customisation as they normally would with ggplot.
 
 ## Numerical Summaries for missing data
 
-Numerical summaries of missing data are also made easy with some helper functions from the `ggmissing` package. For example, finding the overall proportion of missing values in the data overall, or the cases, or variables, can be done with `percent_missing_*` functions.
+Numerical summaries of missing data are also made easy with some helper functions from the `ggmissing` package, which allows for finding the proportion of missing values in the data overall, in cases, or in variables. This can be done with the `percent_missing_*` functions.
 
 
 ```{r numerical-percent-missing}
@@ -218,36 +222,30 @@ percent_missing_case(airquality)
 
 ```
 
-We can also look at the number and percent of missings in each case, and in each variable with `summary_missing_case`, and `summary_missing_var`.
-
-```
-summary_missing_case(airquality)
-```
-
-```{r echo = FALSE}
-summary_missing_case(airquality) %>% slice(1:5)
-```
-
+We can also look at the number and percent of missings in each case and variable with `summary_missing_case`, and `summary_missing_var`.
 
 ```{r}
 
+summary_missing_case(airquality) %>% slice(1:5)
 summary_missing_var(airquality)
 
 ```
 
-We can also present tabulations that present more complicated inferences with `table_missing_case` and `table_missing_var`. These tally up the number of missings in each case or variable, then describe how many cases or variables have that many missings, and the percentage of cases or variables that contain missings
+Tabulations of the number of missings in each case or variable can be calculated with `table_missing_case` and `table_missing_var`. 
 
 
 ```{r}
 
-ggmissing::table_missing_case(airquality)
-ggmissing::table_missing_var(airquality)
+table_missing_case(airquality)
+table_missing_var(airquality)
 
 ```
 
 <!-- it would be really cool if we could implement dplyr `group_by` syntax for the data, to produce summaries of missingness for 1993 and 1997 respectively. -->
 
 # Discussion
+
+In this paper we discussed 
 
 We describe the current packages and software for exploring and visualising missing data.
 
