@@ -25,7 +25,7 @@
 \usepackage{hyperref}
 \hypersetup{unicode=true,
             pdftitle={Building on ggplot2 for exploration of missing values},
-            pdfauthor={Nicholas Tierney},
+            pdfauthor={Nicholas Tierney, Queensland University of Technology, Brisbane, Australia},
             pdfborder={0 0 0},
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
@@ -116,7 +116,8 @@
   \title{Building on ggplot2 for exploration of missing values}
   \pretitle{\vspace{\droptitle}\centering\huge}
   \posttitle{\par}
-  \author{Nicholas Tierney}
+  \author{Nicholas Tierney, Queensland University of Technology, Brisbane,
+Australia}
   \preauthor{\centering\large\emph}
   \postauthor{\par}
   \date{}
@@ -128,14 +129,18 @@
 
 \section{Introduction}\label{introduction}
 
-Missing data is ubiquitous in data analysis. ggplot2, an implementation
-of the grammar of graphics is an incredibly popular way to produce data
-visualisations does not currently support missing data (Wickham 2009).
-Principles of tidy data (Wickham 2014) states that each row is an
-observation and each column is a variable, which makes it easy and
-consistent to perform data manipulation and wrangling. However, there
-are currently no guidelines for representing additional missing data
-structures in a tidy format. This paper describes approaches for
+Missing values are ubiquitous in data and need to be explored and
+handled in the initial stages of analysis. This paper describes a
+package, \texttt{naniar}, for exploring missing data dependencies with
+minimal deviation from the common workflows of ggplot and tidy data
+(Wickham 2014). Typically, ggplot2 throws an warning about missings but
+then omits them for plotting (Wickham 2009). This extension builds data
+structures and functions that ensure missings are plotted easily and
+enables imputations to be examined. Principles of tidy data states that
+each row is an observation and each column is a variable, which makes it
+easy and consistent to perform data manipulation and wrangling. However,
+there are currently no guidelines for representing additional missing
+data structures in a tidy format. This paper describes approaches for
 exploring missing data structure with minimal deviation from the common
 workflows of ggplot and tidy data structures.
 
@@ -155,7 +160,9 @@ producing missing data must be inferred from the data. Longitudinal
 studies are also sources of missing data, where participants may not
 return for future testing sessions. In these cases it is difficult,
 sometimes impossible, to ascertain the reason for the dropouts, and
-hence, whether the missingness structure is known or unknown.
+hence, whether the missingness structure is known or unknown. In the
+physical sciences like climate and air quality data, measuring
+instruments fail leading to missing values.
 
 There are a two approaches to analysis of data with missing values,
 deletion and imputation. Deletion methods drop variables or cases,
@@ -178,21 +185,22 @@ imputations themselves (Buuren and Groothuis-Oudshoorn 2011; Su et al.
 2011; Schafer and Novo 2013; Honaker et al. 2011).
 
 Missing data visualisation packages include the R package VIM, and the
-stand alone softwares MANET, ggobi, MissingDataGUI, and to a more
-limited extent, ggplot2 (Cheng et al. 2015; Unwin et al. 1996; Swayne et
-al. 2003; Templ et al. 2011; Wickham 2009). MANET (Missings Are Now
-Equally Treated), provides univariate visualisations of missing data
-using linked brushing between a reference plot of the missingness for
-each variable, and a plot of the data as a histogram or barplot. ggobi
-extends the univariate linked brushing of MANET to multivariate, using
-parallel co-ordinate plots. ggobi also provided incoporated missingness
-into scatterplots, displaying missing values from one variable as 10\%
-below the minimum value on the other axis. MissingDataGUI provides a
-user interface for exploring missing data structure both numerically and
-visually. Using a GUI to explore missing data makes it easier to glean
-valuable insights into important structures, but may then make it hard
-to incorporate these unscripted insights into reproducible analyses, and
-may also distract and break the workflow from statistical analysis.
+stand alone software MANET, ggobi, MissingDataGUI, and to a more limited
+extent, ggplot2 (Cheng, Cook, and Hofmann 2015; Unwin et al. 1996;
+Swayne et al. 2003; Templ et al. 2011; Wickham 2009). MANET (Missings
+Are Now Equally Treated), provides univariate visualisations of missing
+data using linked brushing between a reference plot of the missingness
+for each variable, and a plot of the data as a histogram or barplot.
+ggobi extends the univariate linked brushing of MANET to multivariate,
+using parallel co-ordinate plots. ggobi also provided incorporated
+missingness into scatterplots, displaying missing values from one
+variable as 10\% below the minimum value on the other axis.
+MissingDataGUI provides a user interface for exploring missing data
+structure both numerically and visually. Using a GUI to explore missing
+data makes it easier to glean valuable insights into important
+structures, but may then make it hard to incorporate these unscripted
+insights into reproducible analyses, and may also distract and break the
+workflow from statistical analysis.
 
 VIM (Visualising and Imputing Missing Data) is an R package that
 provides methods for both imputation and visualisation of missing data.
@@ -205,7 +213,7 @@ it's syntax for data manipulation and visualisation is difficult to
 extend, and does not follow tidy data principles. ggplot2 currently only
 provides visualisation of missing values for categories treating
 categories as NA values. For all other plots, ggplot2 prints a warning
-message of the number of missing values ommited.
+message of the number of missing values omitted.
 
 There are many ways to explore missing data structure and imputation,
 however there is no unified methodology to explore, or visualise missing
@@ -215,13 +223,13 @@ grammar of graphics and tidy data.
 \section{Data structures for missing
 data}\label{data-structures-for-missing-data}
 
-Representing missing data structure is achieed using the shadow matrix,
+Representing missing data structure is achieved using the shadow matrix,
 introduced in Swayne and Buja Swayne and Buja (1998; 1998). The shadow
 matrix is the same dimension as the data, and consists of binary
 indicators of missingness of data values, where missing is represented
 as ``NA'', and not missing is represented as ``!NA''. Although these may
 be represented as 1 and 0, respectively. This representation can be seen
-in figure 1 below, adding the sufic ``\_NA" to the variables. This
+in figure 1 below, adding the suffix ``\_NA" to the variables. This
 structure can also be extended to allow for additional factor levels to
 be created. For example 0 indicates data presence, 1 indicates missing
 values, 2 indicates imputed value, and 3 might indicate a particular
@@ -270,7 +278,7 @@ are side by side, is that it allows for examining univariate
 distributions according to the presence or absence of another variable.
 The plot below shows the values of temperature when ozone is present and
 missing, on the left is a faceted histogram, and on the right is an
-overlayed density.
+overlaid density.
 
 \begin{verbatim}
 ggplot(data = bind_shadow(airquality),
@@ -302,7 +310,7 @@ where there is no missing data in the variable that they want to
 plot.
 
 Another method of visualisation can be explored using
-\texttt{geom\_missing\_point()} from the \texttt{ggmissing} package:
+\texttt{geom\_missing\_point()} from the \texttt{naniar} package:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -340,7 +348,7 @@ normally would with ggplot.
 data}\label{numerical-summaries-for-missing-data}
 
 Numerical summaries of missing data are also made easy with some helper
-functions from the \texttt{ggmissing} package, which provides tidy
+functions from the \texttt{naniar} package, which provides tidy
 functions that return either single numbers or dataframes. The
 \texttt{percent\_missing\_*} functions help find the proportion of
 missing values in the data overall, in cases, or in variables.
@@ -384,19 +392,25 @@ variable with \texttt{summary\_missing\_case}, and
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{summary_missing_case}\NormalTok{(airquality) %>%}\StringTok{ }\KeywordTok{slice}\NormalTok{(}\DecValTok{1}\NormalTok{:}\DecValTok{5}\NormalTok{)}
+\KeywordTok{summary_missing_case}\NormalTok{(airquality)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## # A tibble: 5 × 3
-##    case n_missing  percent
-##   <int>     <int>    <dbl>
-## 1     1         0  0.00000
-## 2     2         0  0.00000
-## 3     3         0  0.00000
-## 4     4         0  0.00000
-## 5     5         2 33.33333
+## # A tibble: 153 × 3
+##     case n_missing  percent
+##    <int>     <int>    <dbl>
+## 1      1         0  0.00000
+## 2      2         0  0.00000
+## 3      3         0  0.00000
+## 4      4         0  0.00000
+## 5      5         2 33.33333
+## 6      6         1 16.66667
+## 7      7         0  0.00000
+## 8      8         0  0.00000
+## 9      9         0  0.00000
+## 10    10         1 16.66667
+## # ... with 143 more rows
 \end{verbatim}
 
 \begin{Shaded}
@@ -455,26 +469,28 @@ calculated with \texttt{table\_missing\_case} and
 
 In this paper we discussed missing data mechanisms, existing packages
 for imputation and visualisation of missing data, and the limitations of
-current missing data exploration and visualisaion softwares. We then
+current missing data exploration and visualisation software. We then
 discussed data structures for missing data, and showed how these can be
 used following tidy data principles, and how to effectively present
-visualisations and numerical summaries using the R packages ggmissing
-and visdat, available for download on github:
-\url{https://github.com/njtierney/ggmissing}, and
+visualisations and numerical summaries using the R packages naniar and
+visdat, available for download on github:
+\url{https://github.com/njtierney/naniar}, and
 \url{https://github.com/njtierney/visdat}.
 
 It is worthwhile to note the trade off between storage and computation
 of the augmented shadow matrix. When storage of data is an issue, it may
-not be practial to bind the shadow matrix to the regular data. Instead,
+not be practical to bind the shadow matrix to the regular data. Instead,
 it may be more effective to perform the computation for the column of
 interest when necessary. However, the shadow matrix can also allow for
 more complex types of missingness to be expressed, and so there are
 additional benefits to storing data in this way. For example, missing,
-\texttt{NA},and not missing, \texttt{!NA}, could be extended to describe
-different mechanisms for missingness, e.g., \texttt{NA\_mechanism\_A},
-and \texttt{NA\_mechanism\_B}, or even imputed values
-\texttt{value\_imputed}. These could then be combined with the same
-sorts of plots and numerical summaries to provide diagnostics.
+\texttt{NA}, and not missing, \texttt{!NA}, could be extended to
+describe different mechanisms for missingness, e.g.,
+\texttt{NA\_mechanism\_A}, and \texttt{NA\_mechanism\_B}, or even
+imputed values \texttt{value\_imputed}. These could then be combined
+with the same sorts of plots and numerical summaries to provide
+diagnostics. These data structures should facilitate future research in
+missing data handling and imputation methods.
 
 Future research should focus on developing techniques for identifying
 missingness mechanisms and methods for encoding mechanisms into the
@@ -493,10 +509,9 @@ Multivariate Imputation by Chained Equations in R.'' \emph{J. Stat.
 Softw.} 45 (1): 1--67.
 
 \hypertarget{ref-cheng2015}{}
-Cheng, Xiaoyue, Dianne Cook, Heike Hofmann, and others. 2015. ``Visually
+Cheng, Xiaoyue, Dianne Cook, and Heike Hofmann. 2015. ``Visually
 Exploring Missing Values in Multivariable Data Using a Graphical User
-Interface.'' \emph{Journal of Statistical Software} 68 (1). Foundation
-for Open Access Statistics: 1--23.
+Interface.'' \emph{Journal of Statistical Software} 68 (1): 1--23.
 
 \hypertarget{ref-Amelia}{}
 Honaker, James, Gary King, Matthew Blackwell, and Others. 2011. ``Amelia
@@ -509,7 +524,7 @@ Statistical Association} 83 (404). Taylor \& Francis: 1198--1202.
 
 \hypertarget{ref-Rubin1976}{}
 Rubin, Donald B. 1976. ``Inference and Missing Data.'' \emph{Biometrika}
-63 (3). Biometrika Trust: 581--92.
+63 (3): 581--92.
 
 \hypertarget{ref-Schafer2002}{}
 Schafer, Joseph L., and John W. Graham. 2002. ``Missing data: Our view
@@ -535,13 +550,13 @@ the Black Box.'' \emph{J. Stat. Softw.} 45 (1): 1--31.
 \hypertarget{ref-Swayne1998}{}
 Swayne, Deborah F, and Andreas Buja. 1998. ``Missing Data in Interactive
 High-Dimensional Data Visualization.'' \emph{Computational Statistics}
-13 (1). Citeseer: 15--26.
+13 (1): 15--26.
 
 \hypertarget{ref-swayne2003ggobi}{}
 Swayne, Deborah F, Duncan Temple Lang, Andreas Buja, and Dianne Cook.
 2003. ``GGobi: Evolving from Xgobi into an Extensible Framework for
 Interactive Data Visualization.'' \emph{Computational Statistics \& Data
-Analysis} 43 (4). Elsevier: 423--44.
+Analysis} 43 (4): 423--44.
 
 \hypertarget{ref-vim}{}
 Templ, Matthias, Andreas Alfons, Alexander Kowarik, and Bernd Prantner.
@@ -550,18 +565,16 @@ Package Version} 2 (3).
 
 \hypertarget{ref-treisman1985}{}
 Treisman, Anne. 1985. ``Preattentive Processing in Vision.''
-\emph{Computer Vision, Graphics, and Image Processing} 31 (2). Elsevier:
-156--77.
+\emph{Computer Vision, Graphics, and Image Processing} 31 (2): 156--77.
 
 \hypertarget{ref-Unwin1996}{}
 Unwin, Antony, George Hawkins, Heike Hofmann, and Bernd Siegl. 1996.
 ``Interactive Graphics for Data Sets with Missing Values - Manet.''
-\emph{Journal of Computational and Graphical Statistics} 5 (2). Taylor
-\& Francis Group: 113--22.
+\emph{Journal of Computational and Graphical Statistics} 5 (2): 113--22.
 
 \hypertarget{ref-wickham2009ggplot2}{}
 Wickham, Hadley. 2009. \emph{Ggplot2: Elegant Graphics for Data
-Analysis}. Springer Science \& Business Media.
+Analysis}. Springer.
 
 \hypertarget{ref-wickham2014}{}
 ---------. 2014. ``Tidy Data.'' \emph{Journal of Statistical Software}

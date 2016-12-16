@@ -7,4 +7,4 @@ output:
 
 # Introduction
 
-Missing data is ubiquitous in data analysis. ggplot2, an implementation of the grammar of graphics is an incredibly popular way to produce data visualisations does not currently support missing data. Principles of tidy data states that each row is an observation and each column is a variable, which makes it easy and consistent to perform data manipulation and wrangling. However, there are currently no guidelines for representing additional missing data structures in a tidy format. This paper describes approaches for exploring missing data structure with minimal deviation from the common workflows of ggplot and tidy data structures.
+Missing values are ubiquitous in data and need to be explored and handled in the initial stages of analysis. This paper describes a package, `naniar`, for exploring missing data dependencies with minimal deviation from the common workflows of ggplot and tidy data. Typically, ggplot2 throws an warning about missings but then omits them for plotting. This extension builds data structures and functions that ensure missings are plotted easily and enables imputations to be examined.
