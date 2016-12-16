@@ -24,8 +24,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
 \hypersetup{unicode=true,
-            pdftitle={Expanding ggplot2 for better visual exploration of missing data},
-            pdfauthor={Nicholas Tierney \& Dianne Cook},
+            pdftitle={Expanding R for consistent exploration of missing data},
             pdfborder={0 0 0},
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
@@ -113,12 +112,11 @@
 }
 
 \setlength{\droptitle}{-2em}
-  \title{Expanding ggplot2 for better visual exploration of missing data}
+  \title{Expanding R for consistent exploration of missing data}
   \pretitle{\vspace{\droptitle}\centering\huge}
   \posttitle{\par}
-  \author{Nicholas Tierney \& Dianne Cook}
-  \preauthor{\centering\large\emph}
-  \postauthor{\par}
+  \author{}
+  \preauthor{}\postauthor{}
   \date{}
   \predate{}\postdate{}
 
@@ -139,7 +137,7 @@ structures in a tidy format. This paper describes approaches for
 exploring missing data structure with minimal deviation from the common
 workflows of ggplot and tidy data structures.
 
-\section{Types of missing data}\label{types-of-missing-data}
+\section{Missing Data Mechanisms}\label{missing-data-mechanisms}
 
 Canonical sources of missing data are questionnaires. Data obtained from
 questionnaires are often subject to both unknown and known missingness
@@ -170,31 +168,29 @@ Simonoff 1986; Schafer and Graham 2002).
 data}\label{existing-packages-for-handling-missing-data}
 
 Software focussing on missing data typically focus on imputation or
-visualisation. Packages such as mice, Hmisc, mi, norm, and Amelia
-provide functions to facilitate imputation, and use a wide range of
-methods, from mean or median imputation, to regression or machine
-learning, to Bayesian methodologies, as well as providing diagnostics on
-the imputations themselves (Buuren and Groothuis-Oudshoorn 2011; Harrell
-Jr, Charles Dupont, and others. 2016; Su et al. 2011; R by Alvaro A.
-Novo. Original by Joseph L. Schafer
-\textless{}jls@stat.psu.edu\textgreater{}. 2013; {\textbf{???}}).
+visualisation. Packages such as mice, mi, norm, and Amelia provide
+functions to facilitate imputation, and use a wide range of methods,
+from mean or median imputation, to regression or machine learning, to
+Bayesian methodologies, as well as providing diagnostics on the
+imputations themselves (Buuren and Groothuis-Oudshoorn 2011; Su et al.
+2011; Schafer and Novo 2013; Honaker et al. 2011).
 
 Missing data visualisation packages include the R package VIM, and the
-stand alone softwares MANET, ggobi, and MissingDataGUI (Cheng et al.
-2015; Unwin et al. 1996; Swayne et al. 2003; Templ et al. 2011). MANET
-(Missings Are Now Equally Treated), provides univariate visualisations
-of missing data using linked brushing between a reference plot of the
-missingness for each variable, and a plot of the data as a histogram or
-barplot. ggobi extends the univariate linked brushing of MANET to
-multivariate, using parallel co-ordinate plots. ggobi also provided
-incoporated missingness into scatterplots, displaying missing values
-from one variable as 10\% below the minimum value on the other axis.
-MissingDataGUI provides a user interface for exploring missing data
-structure both numerically and visually. Using a GUI to explore missing
-data makes it easier to glean valuable insights into important
-structures, but may then make it hard to incorporate these unscripted
-insights into reproducible analyses, and may also distract and break the
-workflow from statistical analysis.
+stand alone softwares MANET, ggobi, MissingDataGUI, and to a more
+limited extent, ggplot2 (Cheng et al. 2015; Unwin et al. 1996; Swayne et
+al. 2003; Templ et al. 2011; Wickham 2009). MANET (Missings Are Now
+Equally Treated), provides univariate visualisations of missing data
+using linked brushing between a reference plot of the missingness for
+each variable, and a plot of the data as a histogram or barplot. ggobi
+extends the univariate linked brushing of MANET to multivariate, using
+parallel co-ordinate plots. ggobi also provided incoporated missingness
+into scatterplots, displaying missing values from one variable as 10\%
+below the minimum value on the other axis. MissingDataGUI provides a
+user interface for exploring missing data structure both numerically and
+visually. Using a GUI to explore missing data makes it easier to glean
+valuable insights into important structures, but may then make it hard
+to incorporate these unscripted insights into reproducible analyses, and
+may also distract and break the workflow from statistical analysis.
 
 VIM (Visualising and Imputing Missing Data) is an R package that
 provides methods for both imputation and visualisation of missing data.
@@ -243,7 +239,7 @@ features of the data that may have previously been hidden or unclear.
 \caption{Representations of missing data structures, and subsequent visualisations}
 \end{figure}
 
-\subsection{Visualising missing data}\label{visualising-missing-data}
+\section{Visualising missing data}\label{visualising-missing-data}
 
 \textbf{Heatmap}
 
@@ -252,10 +248,10 @@ command from the \texttt{visdat} package. This displays the the
 airquality dataset included in base R, which contains Daily air quality
 measurements in New York, May to September 1973.
 
-\includegraphics{jsm2017_files/figure-latex/unnamed-chunk-1-1.png}
+\includegraphics{blinded_jsm2017_missing_data_vis_files/figure-latex/unnamed-chunk-1-1.png}
 
-\textbf{Figure 2. Heatmap of missing data using \texttt{vis\_miss}
-(left) using clustering on rows and columns (right) .}
+\textbf{Figure 2. Heatmap of missing data. Clustering on rows and
+columns (right) .}
 
 Similar approaches have been used in other missing data packages such as
 VIM, mi, Amelia, and MissingDataGUI. However this plot is created in the
@@ -285,10 +281,10 @@ ggplot(data = bind_shadow(airquality),
   geom_density()
 \end{verbatim}
 
-\includegraphics{jsm2017_files/figure-latex/bind-shadow-density-1.png}
+\includegraphics{blinded_jsm2017_missing_data_vis_files/figure-latex/bind-shadow-density-1.png}
 
-\textbf{Figure 3., Examining univariate distributions of Ozone according
-to the presence or absence of Solar Radiation.}
+\textbf{Figure 3., Ozone distribution according to the presence or
+absence of Solar Radiation.}
 
 Using this data structure allows for the user to directly refer to the
 variable for which they want to explore the effect of missingness using
@@ -310,27 +306,26 @@ Another method of visualisation can be explored using
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{jsm2017_files/figure-latex/ggeom_missing-1.png}
+\includegraphics{blinded_jsm2017_missing_data_vis_files/figure-latex/ggeom_missing-1.png}
 
-\textbf{Figure 4., Visualising Ozone and Solar Radiation and where they
-are missing in the other variable.}
+\textbf{Figure 4., Scatterplot of Ozone and Solar Radiation.}
 
 This replaces missing values to be 10\% below the minimum value, a
 technique borrowed from ggobi. The missing values are also different
-colours to make missingness preattentive. In this plot we see that there
-is a mostly uniform spread of missing values for Solar.R and Ozone. As
-\texttt{geom\_missing\_point} is a defined geometry for ggplot2, it
-allows users to have full customisation as they normally would with
-ggplot.
+colours to make missingness preattentive (Treisman 1985). In this plot
+we see that there is a mostly uniform spread of missing values for
+Solar.R and Ozone. As \texttt{geom\_missing\_point} is a defined
+geometry for ggplot2, it allows users to have full customisation as they
+normally would with ggplot.
 
-\subsection{Numerical Summaries for missing
+\section{Numerical Summaries for missing
 data}\label{numerical-summaries-for-missing-data}
 
 Numerical summaries of missing data are also made easy with some helper
-functions from the \texttt{ggmissing} package, which allows for finding
-the proportion of missing values in the data overall, in cases, or in
-variables. This can be done with the \texttt{percent\_missing\_*}
-functions.
+functions from the \texttt{ggmissing} package, which provides tidy
+functions that return either single numbers or dataframes. The
+\texttt{percent\_missing\_*} functions help find the proportion of
+missing values in the data overall, in cases, or in variables.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -440,60 +435,35 @@ calculated with \texttt{table\_missing\_case} and
 
 \section{Discussion}\label{discussion}
 
-In this paper we discussed
+In this paper we discussed missing data mechanisms, existing packages
+for imputation and visualisation of missing data, and the limitations of
+current missing data exploration and visualisaion softwares. We then
+discussed data structures for missing data, and showed how these can be
+used following tidy data principles, and how to effectively present
+visualisations and numerical summaries using the R packages ggmissing
+and visdat, available for download on github:
+\url{https://github.com/njtierney/ggmissing}, and
+\url{https://github.com/njtierney/visdat}.
 
-We describe the current packages and software for exploring and
-visualising missing data.
+It is worthwhile to note the trade off between storage and computation
+of the augmented shadow matrix. When storage of data is an issue, it may
+not be practial to bind the shadow matrix to the regular data. Instead,
+it may be more effective to perform the computation for the column of
+interest when necessary. However, the shadow matrix can also allow for
+more complex types of missingness to be expressed, and so there are
+additional benefits to storing data in this way. For example, missing,
+\texttt{NA},and not missing, \texttt{!NA}, could be extended to describe
+different mechanisms for missingness, e.g., \texttt{NA\_mechanism\_A},
+and \texttt{NA\_mechanism\_B}, or even imputed values
+\texttt{value\_imputed}. These could then be combined with the same
+sorts of plots and numerical summaries to provide diagnostics.
 
-This is the \texttt{bind\_shadow} versus computing on the fly with
-\texttt{is\_na}
-
-\begin{verbatim}
-
-ggplot(data = bind_shadow(airquality),
-       aes(x = Ozone)) + 
-  geom_histogram() + 
-  facet_wrap(Solar.R_NA),
-             ncol = 1)
-             
-ggplot(data = airquality,
-       aes(x = Ozone)) + 
-  geom_histogram() + 
-  facet_wrap(is_na(Solar.R),
-             ncol = 1)
-\end{verbatim}
-
-It is important to consider then the implications for storage, when
-using bind\_shadow, and computation, when using the \texttt{is\_na}
-approach. \texttt{bind\_shadow} provides some flexibility and
-extensibility, as it allows for more complex types of missingness. For
-example, it could extending from missing, \texttt{NA},and not missing,
-\texttt{!NA}, to extend to different mechanisms for missingness
-\texttt{NA\_missing\_for\_reason\_A},
-\texttt{NA\_missing\_for\_reason\_B}, or imputed values
-\texttt{value\_imputed}.
-
-\textbf{Limitations}
-
-More research is needed to be done on how to visualise, store, and
-summarise imputations while staying in a tidy data framework. Multiple
-imputation could be stored using nested dataframes for each multiple
-imputation. We didn't discuss how to visualise imputations, but you can
-imagine a similar framework for labelling imputations in a data
-structure.
-
-\textbf{Future work}
-
-explore model-based approaches for exploring based missing data
-structures.
-
-\begin{itemize}
-\tightlist
-\item
-  How does this expand the field?
-\item
-  How is this different to previous findings / usage?
-\end{itemize}
+Future research should focus on developing techniques for identifying
+missingness mechanisms and methods for encoding mechanisms into the
+shadow matrix. Further work could also be done on developing methods to
+store single and multiple imputations into the shadow matrix, and
+methods to visualise these imputations using ggplot geoms, and assess
+them with numerical summaries.
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
@@ -510,21 +480,14 @@ Exploring Missing Values in Multivariable Data Using a Graphical User
 Interface.'' \emph{Journal of Statistical Software} 68 (1). Foundation
 for Open Access Statistics: 1--23.
 
-\hypertarget{ref-Hmisc}{}
-Harrell Jr, Frank E, with contributions from Charles Dupont, and many
-others. 2016. \emph{Hmisc: Harrell Miscellaneous}.
-\url{https://CRAN.R-project.org/package=Hmisc}.
+\hypertarget{ref-Amelia}{}
+Honaker, James, Gary King, Matthew Blackwell, and Others. 2011. ``Amelia
+II: A Program for Missing Data.'' \emph{J. Stat. Softw.} 45 (7): 1--47.
 
 \hypertarget{ref-Little1988}{}
 Little, Roderick JA. 1988. ``A Test of Missing Completely at Random for
 Multivariate Data with Missing Values.'' \emph{Journal of the American
 Statistical Association} 83 (404). Taylor \& Francis: 1198--1202.
-
-\hypertarget{ref-norm}{}
-R by Alvaro A. Novo. Original by Joseph L. Schafer
-\textless{}jls@stat.psu.edu\textgreater{}., Ported to. 2013. \emph{Norm:
-Analysis of Multivariate Normal Datasets with Missing Values}.
-\url{https://CRAN.R-project.org/package=norm}.
 
 \hypertarget{ref-Rubin1976}{}
 Rubin, Donald B. 1976. ``Inference and Missing Data.'' \emph{Biometrika}
@@ -534,6 +497,11 @@ Rubin, Donald B. 1976. ``Inference and Missing Data.'' \emph{Biometrika}
 Schafer, Joseph L., and John W. Graham. 2002. ``Missing data: Our view
 of the state of the art.'' \emph{Psychological Methods} 7 (2): 147--77.
 doi:\href{https://doi.org/10.1037//1082-989X.7.2.147}{10.1037//1082-989X.7.2.147}.
+
+\hypertarget{ref-norm}{}
+Schafer, Joseph L., and Alvaro A. Novo. 2013. \emph{Norm: Analysis of
+Multivariate Normal Datasets with Missing Values}.
+\url{https://CRAN.R-project.org/package=norm}.
 
 \hypertarget{ref-simon-simonoff}{}
 Simon, Gary A., and Jeffrey S Simonoff. 1986. ``Diagnostic Plots for
@@ -562,6 +530,11 @@ Templ, Matthias, Andreas Alfons, Alexander Kowarik, and Bernd Prantner.
 2011. ``VIM: Visualization and Imputation of Missing Values.'' \emph{R
 Package Version} 2 (3).
 
+\hypertarget{ref-treisman1985}{}
+Treisman, Anne. 1985. ``Preattentive Processing in Vision.''
+\emph{Computer Vision, Graphics, and Image Processing} 31 (2). Elsevier:
+156--77.
+
 \hypertarget{ref-Unwin1996}{}
 Unwin, Antony, George Hawkins, Heike Hofmann, and Bernd Siegl. 1996.
 ``Interactive Graphics for Data Sets with Missing Values - Manet.''
@@ -572,8 +545,9 @@ Unwin, Antony, George Hawkins, Heike Hofmann, and Bernd Siegl. 1996.
 Wickham, Hadley. 2009. \emph{Ggplot2: Elegant Graphics for Data
 Analysis}. Springer Science \& Business Media.
 
-\hypertarget{ref-Wickham2014}{}
----------. 2014. ``Tidy Data.'' \emph{J. Stat. Softw.} 59 (1): 1--23.
+\hypertarget{ref-wickham2014}{}
+---------. 2014. ``Tidy Data.'' \emph{Journal of Statistical Software}
+59 (10).
 
 
 \end{document}

@@ -1,5 +1,6 @@
 ---
-title: "Abstract for JSM"
+title: "Expanding R for consistent exploration of missing data"
+author: "Nicholas Tierney & Dianne Cook"
 output: html_document
 ---
 
