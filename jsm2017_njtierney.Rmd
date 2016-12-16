@@ -1,6 +1,6 @@
 ---
-title: "Expanding R for consistent exploration of missing data"
-author: "Nicholas Tierney & Dianne Cook"
+title: "Building on ggplot2 for exploration of missing values"
+author: "Nicholas Tierney"
 output:
   pdf_document:
     keep_tex: yes
@@ -100,7 +100,7 @@ prop_na <- function(x){
 
 # Introduction
 
-Missing data is ubiquitous in data analysis. ggplot2, an implementation of the grammar of graphics is an incredibly popular way to produce data visualisations does not currently support missing data [@wickham2009ggplot2]. Principles of tidy data [@wickham2014] states that each row is an observation and each column is a variable, which makes it easy and consistent to perform data manipulation and wrangling. However, there are currently no guidelines for representing additional missing data structures in a tidy format. This paper describes approaches for exploring missing data structure with minimal deviation from the common workflows of ggplot and tidy data structures.
+Missing values are ubiquitous in data and need to be explored and handled in the initial stages of analysis ggplot2, an implementation of the grammar of graphics is an incredibly popular way to produce data visualisations does not currently support missing data [@wickham2009ggplot2]. Principles of tidy data [@wickham2014] states that each row is an observation and each column is a variable, which makes it easy and consistent to perform data manipulation and wrangling. However, there are currently no guidelines for representing additional missing data structures in a tidy format. This paper describes approaches for exploring missing data structure with minimal deviation from the common workflows of ggplot and tidy data structures.
 
 # Missing Data Mechanisms
 
@@ -125,9 +125,9 @@ Representing missing data structure is achieed using the shadow matrix, introduc
 \begin{figure}[h]
 \centering
 \includegraphics[width=270pt]{diagram.png}
-\caption{Representations of missing data structures, and subsequent visualisations}
 \end{figure}
 
+__Figure 1. Illustration of data structures for facilitating visualisation of missings and not missings.__
 
 # Visualising missing data
 
@@ -146,24 +146,24 @@ gridExtra::grid.arrange(p1,p2,ncol = 2)
 
 ```
 
-__Figure 2. Heatmap of missing data. Clustering on rows and columns (right) .__
+__Figure 2. Heatmaps of missing data (left) raw (right) ordered by clustering on rows and columns.__
 
 Similar approaches have been used in other missing data packages such as VIM, mi, Amelia, and MissingDataGUI. However this plot is created in the ggplot framework, giving users greater control over the plot appearance. The user can also apply clustering of the rows and columns using the `cluster = TRUE` argument (shown on the right).
 
 **Univariate plots split by missingness**
 
-An advantage of the augmented shadow format, where the data and shadow are side by side, is that it allows for examining univariate distributions according to the presence or absence of another variable. The plot below shows the values of Ozone when Solar.R is present and missing, on the left is a faceted histogram, and on the right is an overlayed density.
+An advantage of the augmented shadow format, where the data and shadow are side by side, is that it allows for examining univariate distributions according to the presence or absence of another variable. The plot below shows the values of temperature when ozone is present and missing, on the left is a faceted histogram, and on the right is an overlayed density.
 
 ```
 ggplot(data = bind_shadow(airquality),
-       aes(x = Ozone)) + 
+       aes(x = Temp)) + 
   geom_histogram() + 
-  facet_wrap(~Solar.R_NA,
+  facet_wrap(~Ozone_NA,
              ncol = 1)
 
 ggplot(data = bind_shadow(airquality),
-       aes(x = Ozone,
-           colour = Solar.R_NA)) + 
+       aes(x = Temp,
+           colour = Ozone_NA)) + 
   geom_density()
 ```
 
@@ -171,37 +171,46 @@ ggplot(data = bind_shadow(airquality),
 
 ```{r bind-shadow-density, fig.height = 4, fig.width = 10, error = FALSE, message = FALSE, echo = FALSE, }
 
+
 p1 <- ggplot(data = bind_shadow(airquality),
-       aes(x = Ozone)) + 
+       aes(x = Temp)) + 
   geom_histogram(na.rm = TRUE) + 
-  facet_wrap(~Solar.R_NA,
+  facet_wrap(~Ozone_NA,
              ncol = 1)
 
 p2 <- ggplot(data = bind_shadow(airquality),
-       aes(x = Ozone,
-           colour = Solar.R_NA)) + 
-  geom_density(na.rm = TRUE)
+       aes(x = Temp,
+           colour = Ozone_NA)) + 
+  geom_density(na.rm = TRUE) 
 
 gridExtra::grid.arrange(p1,p2,ncol = 2)
 
 ```
 
-__Figure 3., Ozone distribution according to the presence or absence of Solar Radiation.__
+__Figure 3., Two representations of temperature showing missingness on ozone (left) facetted, (right) coloured. Main difference in the distribution is that there is a cluster of low temperature observations with missing ozone values.__
 
-Using this data structure allows for the user to directly refer to the variable for which they want to explore the effect of missingness using the suffix _NA after the variable. In the case above, the user is looking at a histogram of Ozone, but is then able to look at how many Ozone values are affected by Solar.R. In cases where there is no missing data in the variable that they want to "split" the missingness by, the plot simple returns a single facetted plot.
+Using this data structure allows for the user to directly refer to the variable for which they want to explore the effect of missingness using the suffix _NA after the variable. In the case above, the user is looking at a histogram of temperature, but is then able to look at how many temperature values are affected by missingness of ozone. In cases where there is no missing data in the variable that they want to "split" the missingness by, the plot simple returns a single facetted plot.
 
 Another method of visualisation can be explored using `geom_missing_point()` from the `ggmissing` package:
 
-```{r ggeom_missing, fig.height = 4, fig.width = 10}
+```{r ggeom_missing, fig.height = 4, fig.width = 8}
 
-ggplot(data = airquality,
+p1 <- ggplot(data = airquality,
        aes(x = Ozone,
            y = Solar.R)) + 
-  geom_missing_point()
+  geom_missing_point() + 
+  theme(aspect.ratio = 1)
+
+p2 <- ggplot(data = airquality,
+       aes(x = Temp,
+           y = Ozone)) + 
+  geom_missing_point() + 
+  theme(aspect.ratio = 1)
+
+gridExtra::grid.arrange(p1,p2,ncol=2)
 ```
 
-__Figure 4., Scatterplot of Ozone and Solar Radiation.__
-
+__Figure 4., Scatterplots with missings displayed at 10% below (left) ozone versus and solar radiation (right) ozone versus temperature.__
 
 This replaces missing values to be 10% below the minimum value, a technique borrowed from ggobi. The missing values are also different colours to make missingness preattentive [@treisman1985]. In this plot we see that there is a mostly uniform spread of missing values for Solar.R and Ozone. As `geom_missing_point` is a defined geometry for ggplot2, it allows users to have full customisation as they normally would with ggplot.
 

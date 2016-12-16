@@ -24,8 +24,8 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
 \hypersetup{unicode=true,
-            pdftitle={Expanding R for consistent exploration of missing data},
-            pdfauthor={Nicholas Tierney \& Dianne Cook},
+            pdftitle={Building on ggplot2 for exploration of missing values},
+            pdfauthor={Nicholas Tierney},
             pdfborder={0 0 0},
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
@@ -113,10 +113,10 @@
 }
 
 \setlength{\droptitle}{-2em}
-  \title{Expanding R for consistent exploration of missing data}
+  \title{Building on ggplot2 for exploration of missing values}
   \pretitle{\vspace{\droptitle}\centering\huge}
   \posttitle{\par}
-  \author{Nicholas Tierney \& Dianne Cook}
+  \author{Nicholas Tierney}
   \preauthor{\centering\large\emph}
   \postauthor{\par}
   \date{}
@@ -238,8 +238,10 @@ features of the data that may have previously been hidden or unclear.
 \begin{figure}[h]
 \centering
 \includegraphics[width=270pt]{diagram.png}
-\caption{Representations of missing data structures, and subsequent visualisations}
 \end{figure}
+
+\textbf{Figure 1. Illustration of data structures for facilitating
+visualisation of missings and not missings.}
 
 \section{Visualising missing data}\label{visualising-missing-data}
 
@@ -252,8 +254,8 @@ measurements in New York, May to September 1973.
 
 \includegraphics{jsm2017_njtierney_files/figure-latex/unnamed-chunk-1-1.png}
 
-\textbf{Figure 2. Heatmap of missing data. Clustering on rows and
-columns (right) .}
+\textbf{Figure 2. Heatmaps of missing data (left) raw (right) ordered by
+clustering on rows and columns.}
 
 Similar approaches have been used in other missing data packages such as
 VIM, mi, Amelia, and MissingDataGUI. However this plot is created in the
@@ -266,51 +268,65 @@ The user can also apply clustering of the rows and columns using the
 An advantage of the augmented shadow format, where the data and shadow
 are side by side, is that it allows for examining univariate
 distributions according to the presence or absence of another variable.
-The plot below shows the values of Ozone when Solar.R is present and
+The plot below shows the values of temperature when ozone is present and
 missing, on the left is a faceted histogram, and on the right is an
 overlayed density.
 
 \begin{verbatim}
 ggplot(data = bind_shadow(airquality),
-       aes(x = Ozone)) + 
+       aes(x = Temp)) + 
   geom_histogram() + 
-  facet_wrap(~Solar.R_NA,
+  facet_wrap(~Ozone_NA,
              ncol = 1)
 
 ggplot(data = bind_shadow(airquality),
-       aes(x = Ozone,
-           colour = Solar.R_NA)) + 
+       aes(x = Temp,
+           colour = Ozone_NA)) + 
   geom_density()
 \end{verbatim}
 
 \includegraphics{jsm2017_njtierney_files/figure-latex/bind-shadow-density-1.png}
 
-\textbf{Figure 3., Ozone distribution according to the presence or
-absence of Solar Radiation.}
+\textbf{Figure 3., Two representations of temperature showing
+missingness on ozone (left) facetted, (right) coloured. Main difference
+in the distribution is that there is a cluster of low temperature
+observations with missing ozone values.}
 
 Using this data structure allows for the user to directly refer to the
 variable for which they want to explore the effect of missingness using
 the suffix \_NA after the variable. In the case above, the user is
-looking at a histogram of Ozone, but is then able to look at how many
-Ozone values are affected by Solar.R. In cases where there is no missing
-data in the variable that they want to ``split'' the missingness by, the
-plot simple returns a single facetted plot.
+looking at a histogram of temperature, but is then able to look at how
+many temperature values are affected by missingness of ozone. In cases
+where there is no missing data in the variable that they want to
+``split'' the missingness by, the plot simple returns a single facetted
+plot.
 
 Another method of visualisation can be explored using
 \texttt{geom\_missing\_point()} from the \texttt{ggmissing} package:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =} \NormalTok{airquality,}
+\NormalTok{p1 <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =} \NormalTok{airquality,}
        \KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \NormalTok{Ozone,}
            \DataTypeTok{y =} \NormalTok{Solar.R)) +}\StringTok{ }
-\StringTok{  }\KeywordTok{geom_missing_point}\NormalTok{()}
+\StringTok{  }\KeywordTok{geom_missing_point}\NormalTok{() +}\StringTok{ }
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{aspect.ratio =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{p2 <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =} \NormalTok{airquality,}
+       \KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \NormalTok{Temp,}
+           \DataTypeTok{y =} \NormalTok{Ozone)) +}\StringTok{ }
+\StringTok{  }\KeywordTok{geom_missing_point}\NormalTok{() +}\StringTok{ }
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{aspect.ratio =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{gridExtra::}\KeywordTok{grid.arrange}\NormalTok{(p1,p2,}\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{jsm2017_njtierney_files/figure-latex/ggeom_missing-1.png}
 
-\textbf{Figure 4., Scatterplot of Ozone and Solar Radiation.}
+\textbf{Figure 4., Scatterplots with missings displayed at 10\% below
+(left) ozone versus and solar radiation (right) ozone versus
+temperature.}
 
 This replaces missing values to be 10\% below the minimum value, a
 technique borrowed from ggobi. The missing values are also different
