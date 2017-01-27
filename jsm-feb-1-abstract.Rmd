@@ -1,0 +1,32 @@
+---
+title: "JSM Abstract Submission"
+author: "Nicholas Tierney"
+date: "27/01/2017"
+output: html_document
+bibliography: jsm2017.bib
+---
+
+## Session Type: Contributed
+
+
+## Session Subtype: Paper
+
+
+## Primary Sponsor: (ASA Committee, ASA Section, JSM Sponsoring Society). A pull-down screen with a pre-approved list is provided.
+
+### Expanding R for consistent exploration of missing data
+
+
+Missing values are ubiquitous in data and need to be explored and handled in the initial stages of analysis. Superficial analysis of missing values can lead to biased results. However, the exploration of missing values can be a difficult process.  There is a need for a framework that supports the exploratory data analysis of missing data. This paper describes a package, `naniar`, for exploring missing data dependencies with minimal deviation from the common workflows of ggplot and tidy data [@wickham2014]. Typically, ggplot2 throws an warning about missings but then omits them for plotting [@wickham2009ggplot2]. This extension builds data structures and functions that ensure missings are plotted easily and enables imputations to be examined. Principles of tidy data states that each row is an observation and each column is a variable, which makes it easy and consistent to perform data manipulation and wrangling. However, there are currently no guidelines for representing additional missing data structures in a tidy format. This paper describes approaches for exploring missing data structure with minimal deviation from the common workflows of ggplot and tidy data structures.
+
+**Keywords**
+
+- Missing Data
+- Exploratory Data analysis
+- Imputation
+- Visulisation
+
+Presenting author and co-author contact information:
+
+- Presenting Author: Nicholas Tierney (nicholas.tierney@gmail.com)
+- Co-Authors: Dianne Cook (dicook@monash.edu), Miles McBain (milesmcbain@gmail.com)
