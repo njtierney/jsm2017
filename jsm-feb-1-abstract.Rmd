@@ -14,21 +14,23 @@ bibliography: jsm2017.bib
 
 ### Data structures and functions for consistent exploration of missing data
 
-Many real world data sets include missing values and these need to be carefully explored and
-handled in the initial stages of analysis to avoid bias. However, exploring
-why and how values are missing is typically an inefficient process. For
-example, visualisation of data with missing values in R's base graphics silently drops missing values, and
-ggplot2 typically results in a warning (Wickham, 2016). Additionally, missing data which have been imputed
-are not typically distinguished in visualisation and summaries of data. Tidy data
-structures as described in Wickham (2014), provide an efficient, easy
-and consistent approach to performing data manipulation and wrangling 
-where each row is an observation and each column is a variable. There are
-currently no guidelines for representing missing data structures in a tidy
-format, nor simple approaches to visualising missing values. This paper describes
-an R package, `naniar`, for exploring missing values in data with minimal
-deviation from the common workflows of ggplot and tidy data. Our package builds
-data structures and functions that ensure missing values are handled effectively for
-plotting and summarising data with missing values, and examining the effect of imputation.
+Missing values are ubiquitous in data and need to be carefully explored and
+handled in the initial stages of analysis to avoid bias. However, exploring why
+and how values are missing is typically an inefficient process. For example,
+visualising data with missing values in ggplot2 results in omission of missing
+values with a warning, and base R silently omits missing values (Wickham,
+2016). Additionally, imputed missing data are not typically distinguished in
+visualisation and data summaries. Tidy data structures described in Wickham
+(2014) provide an efficient, easy and consistent approach to performing data
+manipulation and wrangling, where each row is an observation and each column
+is a variable. There are currently no guidelines for representing missing
+data structures in a tidy format, nor simple approaches to visualising missing
+values. This paper describes an R package, naniar, for exploring missing values
+in data with minimal deviation from the common workflows of ggplot and tidy
+data. Naniar builds data structures and functions that ensure missing values are
+handled effectively for plotting and summarising data with missing values, and
+examining the effects of imputation.
+
 
 **Bibliography**
 
