@@ -40,7 +40,10 @@ Wickham, H. (2014). Tidy data. Journal of Statistical Software, 59(10), 1-23.
 - Missing Data
 - Exploratory Data analysis
 - Imputation
-- Visulisation
+- Data Visualization
+- Data Mining
+- Statistical Graphics
+
 
 Presenting author and co-author contact information:
 
