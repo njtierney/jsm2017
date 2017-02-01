@@ -8,16 +8,32 @@ bibliography: jsm2017.bib
 
 ## Session Type: Contributed
 
-
 ## Session Subtype: Paper
 
-
-## Primary Sponsor: (Statistical Graphics). A pull-down screen with a pre-approved list is provided.
+## Primary Sponsor: (Statistical Graphics).
 
 ### Data structures and functions for consistent exploration of missing data
 
+Missing values are ubiquitous in data and need to be carefully explored and
+handled in the initial stages of analysis to avoid bias. However, exploring
+why and how values are missing is typically an inefficient process. For
+example, visualisation of data with missing values in ggplot2 typically
+results in a warning and missing values being omitted (Wickham, 2016). Additionally, multiply imputated values are not typically given in data
+structures easy to visualise and summarise along with original data. Tidy data
+structures as described in Wickham (2014) state that each row is an observation
+and each column is a variable. These principles provide an efficient, easy
+and consistent approach to perform data manipulation and wrangling. There are
+currently no guidelines for representing missing data structures in a tidy
+format, or simple approaches to visualise missing values. This paper describes
+an R package, `naniar`, for exploring missing values in data with minimal
+deviation from the common workflows of ggplot and tidy data. Our package builds
+data structures and functions that ensure missings are handled effectively for
+plotting, summarising, and examining imputations.
 
-Missing values are ubiquitous in data and need to be explored and handled in the initial stages of analysis. Superficial treatment of missing values can lead to biased results, however the exploration of missing values can be a difficult and computationally inefficient process. As a typical example, ggplot2 throws a warning about missing values and omits them from plotting [@wickham2009ggplot2]. There is a need for tools that support the exploratory data analysis of missing data within the framework of tidy data [@wickham2014]. Our proposed extension to tidy data structure incorporates specific treament of missings that ensures they can be handled effectively for summarization, plotting, and imputation. This paper describes a package, `naniar`, that utilizes our proposed data structure to explore missing data dependencies with minimal deviation from the common workflows of ggplot and tidy data. 
+**Bibliography**
+
+Wickham, H. (2016). ggplot2: elegant graphics for data analysis. Springer.
+Wickham, H. (2014). Tidy data. Journal of Statistical Software, 59(10), 1-23.
 
 **Keywords**
 
@@ -28,5 +44,5 @@ Missing values are ubiquitous in data and need to be explored and handled in the
 
 Presenting author and co-author contact information:
 
-- Presenting Author: Nicholas Tierney (nicholas.tierney@gmail.com)
-- Co-Authors: Dianne Cook (dicook@monash.edu), Miles McBain (milesmcbain@gmail.com)
+**Presenting Author**: Nicholas Tierney (nicholas.tierney@gmail.com)
+**Co-Authors**: Dianne Cook (dicook@monash.edu), Miles McBain (milesmcbain@gmail.com)
