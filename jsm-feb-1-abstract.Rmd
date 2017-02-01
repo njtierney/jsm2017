@@ -14,21 +14,21 @@ bibliography: jsm2017.bib
 
 ### Data structures and functions for consistent exploration of missing data
 
-Missing values are ubiquitous in data and need to be carefully explored and
+Many real world data sets include missing values and these need to be carefully explored and
 handled in the initial stages of analysis to avoid bias. However, exploring
 why and how values are missing is typically an inefficient process. For
-example, visualisation of data with missing values in ggplot2 typically
-results in a warning and missing values being omitted (Wickham, 2016). Additionally, multiply imputated values are not typically given in data
-structures easy to visualise and summarise along with original data. Tidy data
-structures as described in Wickham (2014) state that each row is an observation
-and each column is a variable. These principles provide an efficient, easy
-and consistent approach to perform data manipulation and wrangling. There are
+example, visualisation of data with missing values in R's base graphics silently drops missing values, and
+ggplot2 typically results in a warning (Wickham, 2016). Additionally, missing data which have been imputed
+are not typically distinguished in visualisation and summaries of data. Tidy data
+structures as described in Wickham (2014), provide an efficient, easy
+and consistent approach to performing data manipulation and wrangling 
+where each row is an observation and each column is a variable. There are
 currently no guidelines for representing missing data structures in a tidy
-format, or simple approaches to visualise missing values. This paper describes
+format, nor simple approaches to visualising missing values. This paper describes
 an R package, `naniar`, for exploring missing values in data with minimal
 deviation from the common workflows of ggplot and tidy data. Our package builds
-data structures and functions that ensure missings are handled effectively for
-plotting, summarising, and examining imputations.
+data structures and functions that ensure missing values are handled effectively for
+plotting and summarising data with missing values, and examining the effect of imputation.
 
 **Bibliography**
 
